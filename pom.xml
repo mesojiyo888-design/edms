@@ -177,6 +177,12 @@
 		    <groupId>org.springframework.security</groupId>
 		    <artifactId>spring-security-taglibs</artifactId>
 		</dependency>
+
+        <!-- Spring Boot WebFlux 스타터 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>
