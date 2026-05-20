@@ -6,13 +6,12 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
- # open-in-view(혹은 Open-Session-In-View(OSIV))
- # true(기본값) : 사용자에게 응답 또는 view가 렌더링될 때까지 영속성 컨텍스트 유지
- # false : 트랜젝션이 종료될 때 영속성 컨텍스트 종료
+  # true(기본값) : 사용자에게 응답 또는 view가 렌더링될 때까지 영속성 컨텍스트 유지
+  # false : 트랜젝션이 종료될 때 영속성 컨텍스트 종료
   jpa:
     open-in-view: false
 
-# 1. 타임리프 엔진을 완전히 끕니다.
+  # 1. 타임리프 엔진을 완전히 끕니다.
   thymeleaf:
     enabled: false
 
@@ -22,28 +21,8 @@ spring:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
 
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: true
-
-p6spy:
-  config:
-    log-message-format: egovframework.config.P6SpyConfig
-    include-categories: statement,resultset # 쿼리뿐만 아니라 결과셋도 잡겠다는 뜻
-
+# 로깅 설정 추가
 logging:
+  config: classpath:log4j2.xml
   level:
-    root: info
-    # ⭐️ 전자정부 기본 패키지 및 본인 매퍼 경로를 TRACE로 지정
-    egovframework: trace
-    # 만약 다른 패키지명(예: com.project.mapper)을 쓰신다면 그것도 추가해 줍니다.
-    p6spy: debug
-    jdbc:
-      error: error
-      connection: error
-      audit: error
-      sqltiming: error
-    jdbc.sqlonly: off
-    jdbc.resultsettable: info
-
-config: classpath:log4j2.xml
+    root: INFO
