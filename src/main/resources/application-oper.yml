@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  config:
+    activate:
+      on-profile: oper
+    datasource:
+      driver-class-name: org.postgresql.Driver
+      # 실제 운영 DB 주소로 변경 필요 (현재는 로컬호스트)
+      url: jdbc:postgresql://localhost:5432/oper_db
+      username: oper_user
+      password: oper_password
+
+p6spy:
+  config:
+    log-message-format: egovframework.config.P6SpyConfig
+    include-categories: statement  # resultset 제거 (성능)
+
+logging:
+  level:
+    root: warn
+    egovframework: info
+    edms: info
+    p6spy: info
+    jdbc:
+      error: error
+      connection: error
+      audit: error
+      sqltiming: error
+    jdbc.sqlonly: off
+    jdbc.resultsettable: warn
+  config: classpath:log4j2.xml
