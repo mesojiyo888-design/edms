@@ -5,6 +5,8 @@ server:
 spring:
   main:
     allow-bean-definition-overriding: true
+  profiles:
+    active: dev
 
   # true(기본값) : 사용자에게 응답 또는 view가 렌더링될 때까지 영속성 컨텍스트 유지
   # false : 트랜젝션이 종료될 때 영속성 컨텍스트 종료
