@@ -10,9 +10,6 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
 
-    <!-- 시큐리티가 발행한 토큰 정보를 구워놓음 -->
-    <meta name="_csrf" content="${_csrf.token}"/>
-    <meta name="_csrf_header" content="${_csrf.headerName}"/>
 </head>
 
 <body style="text-align:center; margin:0 auto; display:inline; padding-top:100px;">
@@ -52,17 +49,6 @@
     </script>
 </form>
 <script>
-    //모든 AJAX 통신할때 CSRF방지 넣음. //HEADER페이지에 넣어야댐
-    $(function () {
-        var token = $("meta[name='_csrf']").attr("content");
-        var header = $("meta[name='_csrf_header']").attr("content");
-
-        $(document).ajaxSend(function(e, xhr, options) {
-            if (token && header) {
-                xhr.setRequestHeader(header, token);
-            }
-        });
-    });
 
     $(document).ready(function() {
         var csrfToken = $("meta[name='_csrf']").attr("content");

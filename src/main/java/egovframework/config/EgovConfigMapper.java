@@ -23,6 +23,7 @@ public class EgovConfigMapper {
 		sqlSessionFactoryBean.setDataSource(dataSource);
 		sqlSessionFactoryBean.setConfigLocation(pmrpr.getResource("classpath:/egovframework/sqlmap/example/sql-mapper-config.xml"));
 		sqlSessionFactoryBean.setMapperLocations(pmrpr.getResources("classpath:/egovframework/sqlmap/example/mappers/*.xml"));
+        sqlSessionFactoryBean.setMapperLocations(pmrpr.getResources("classpath:/**/mappers/**/*.xml"));
 		return sqlSessionFactoryBean;
 	}
 

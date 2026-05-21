@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edms.com.file.service.impl.EdmsFileMapper">
+    <select id="selectNextSeq" parameterType="String" resultType="int">
+        SELECT COALESCE(MAX(FILE_SEQ), 0) + 1
+        FROM EDMS_FILE_MNG
+        WHERE FILE_ID = #{fileId}
+    </select>
+
+    <insert id="insertFile" parameterType="edms.com.file.service.EdmsFileVo">
+        INSERT INTO EDMS_FILE_MNG (
+        FILE_ID, FILE_SEQ, ORG_FILE_NAME, SAVE_FILE_NAME, FILE_PATH, FILE_SIZE, FILE_EXT
+        ) VALUES (
+        #{fileId}, #{fileSeq}, #{orgFileName}, #{saveFileName}, #{filePath}, #{fileSize}, #{fileExt}
+        )
+    </insert>
+
+    <select id="selectFileListByFileId" parameterType="String" resultType="edms.com.file.service.EdmsFileVo">
+        SELECT
+        FILE_ID as fileId,
+        FILE_SEQ as fileSeq,
+        ORG_FILE_NAME as orgFileName,
+        SAVE_FILE_NAME as saveFileName,
+        FILE_PATH as filePath,
+        FILE_SIZE as fileSize,
+        FILE_EXT as fileExt
+        FROM EDMS_FILE_MNG
+        WHERE FILE_ID = #{fileId}
+        ORDER BY FILE_SEQ ASC
+    </select>
+
+    <select id="selectFileDetail" parameterType="map" resultType="edms.com.file.service.EdmsFileVo">
+        SELECT
+        FILE_ID as fileId,
+        FILE_SEQ as fileSeq,
+        ORG_FILE_NAME as orgFileName,
+        SAVE_FILE_NAME as saveFileName,
+        FILE_PATH as filePath,
+        FILE_SIZE as fileSize,
+        FILE_EXT as fileExt
+        FROM EDMS_FILE_MNG
+        WHERE FILE_ID = #{fileId} AND FILE_SEQ = #{fileSeq}
+    </select>
+
+    <delete id="deleteFileBySeq" parameterType="map">
+        DELETE FROM EDMS_FILE_MNG
+        WHERE FILE_ID = #{fileId} AND FILE_SEQ = #{fileSeq}
+    </delete>
+
+</mapper>
