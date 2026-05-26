@@ -35,6 +35,8 @@
             this.$wrapper.find('.btn-file-add').on('click', function() { self.addNewFileInput(); });
             if (initialFileId) this.loadExistingFiles(initialFileId);
             this.bindContainerChangeEvent();
+
+            this.$wrapper.data('component', this);
         },
 
         loadExistingFiles: function (fileId) {
@@ -46,8 +48,15 @@
                     const ul = $('#' + self._existingListElementId);
                     $.each(list, function (idx, item) {
                         const rowId = "row_" + self._inputParamName + "_" + item.fileSeq;
+
+                        const downloadUrl = _CONTEXT_PATH + '/file/download/' + item.fileId + '/' + item.fileSeq;
+
                         ul.append('<li id="'+rowId+'" style="display:flex; justify-content:space-between; padding:5px;">' +
-                                  '<span>'+item.orgFileName+'</span>' +
+                                  '<span>' +
+                                    '<a href="'+downloadUrl+'" style="text-decoration:none; color:#007bff; margin-right:10px;">💾' +
+                                    item.orgFileName +
+                                    '</a>' +
+                                  '</span>' +
                                   '<button type="button" class="btn-remove" data-seq="'+item.fileSeq+'" style="background:#dc3545; color:#fff; border:none; cursor:pointer;">삭제</button></li>');
                     });
                     ul.find('.btn-remove').on('click', function() {
@@ -70,8 +79,20 @@
             $('#' + this._containerId).on('change', '.dynamic-input', function () {
                 if (this.files.length > 0) {
                     const id = $(this).attr('id');
-                    $('#' + self._existingListElementId).append('<li id="list_'+id+'"><span>'+this.files[0].name+'</span> ' +
-                        '<button type="button" onclick="CommonFile.removeNew(\''+id+'\', \'list_'+id+'\')">❌</button></li>');
+                    const file = this.files[0];
+                    // Blob URL 생성 (다운로드용)
+                    const blobUrl = URL.createObjectURL(file);
+
+                    $('#' + self._existingListElementId).append(
+                        '<li id="list_'+id+'" style="display:flex; justify-content:space-between; padding:5px;">' +
+                        '<span>' +
+                            '<a href="'+blobUrl+'" download="'+file.name+'" style="text-decoration:none; color:#28a745; margin-right:10px;">💾' +
+                            file.name +
+                            '</a>' +
+                        '</span>' +
+                        '<button type="button" onclick="CommonFile.removeNew(\''+id+'\', \'list_'+id+'\')">❌</button>' +
+                        '</li>'
+                    );
                 }
             });
         }
@@ -91,13 +112,13 @@
             const idInput = $area.find('input[type="hidden"]');
             formData.append(idInput.attr('name'), idInput.val());
 
-            // 2. 삭제 시퀀스 (이미 리스트에서 제거하면서 큐에 쌓임 - 이를 위해 별도 관리)
-            // 여기서는 깔끔하게 각 컨테이너 안에 숨겨진 삭제 폼을 만들거나,
-            // 위에서 정의한 큐를 활용해야 합니다. (아래는 간편 방식)
-            $area.find('.btn-remove').each(function() {
-                // 삭제 버튼이 눌려 사라진건 이미 위에서 처리됨.
-                // 전송할 시퀀스는 별도 배열에 담아두는 방식이 제일 정확합니다.
-            });
+            // 2. 삭제 시퀀스 인스턴스에서 큐 꺼내기
+            const component = $area.find('.file-container').data('component');
+            if (component && component._deleteSeqsQueue.length > 0) {
+                component._deleteSeqsQueue.forEach(function(seq) {
+                    formData.append(component._inputParamName + 'DeleteSeqs', seq);
+                });
+            }
 
             // 3. 파일들
             $area.find('.dynamic-input').each(function() {
@@ -105,7 +126,15 @@
             });
         },
         removeNew: function(inputId, listId) {
-            $('#'+inputId).remove(); $('#'+listId).remove();
+            // 생성된 Blob URL 해제
+            const aTag = $('#' + listId).find('a');
+            if (aTag.length > 0) {
+                URL.revokeObjectURL(aTag.attr('href'));
+            }
+
+            $('#'+inputId).remove();
+            $('#'+listId).remove();
+
         }
     };
 })(window);

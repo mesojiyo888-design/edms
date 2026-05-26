@@ -56,7 +56,6 @@ public class EdmsFileController {
 
             System.out.println("이미지 파일 ID: " + request.getParameter("imgFileId"));
             System.out.println("이미지 파일 개수: " + request.getFiles("imgFile").size());
-            System.out.println("이미지 삭제파일 개수: " + request.getFiles("imgFileDeleteSeqs").size());
 
             System.out.println("서류 파일 ID: " + request.getParameter("docFileId"));
             System.out.println("서류 파일 개수: " + request.getFiles("docFile").size());
