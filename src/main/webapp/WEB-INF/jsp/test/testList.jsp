@@ -4,9 +4,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<script src="${pageContext.request.contextPath}/js/egovframework/jquery-3.6.1.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/lib/handlebars/handlebars-4.7.7.js"></script>
-
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
 
@@ -30,6 +27,9 @@
                 <td align="center">
                     <c:out value="${resultList.regUser}"/>
                 </td>
+                <td>
+                    <input type="text" name="boardDate" class="datepicker">
+                </td>
                 <td align="center">
                     <c:out value="${resultList.useYn}"/>
                 </td>
@@ -37,6 +37,7 @@
         </c:forEach>
     </table>
 
+    <div id="paging-area"></div>
 
     <!-- 데이터가 뿌려질 타겟 요소 -->
     <ul id="userList"></ul>
@@ -51,20 +52,9 @@
 <script>
 
     $(document).ready(function() {
-        var csrfToken = $("meta[name='_csrf']").attr("content");
 
-        // 💡 시스템 내부의 모든 POST 폼 태그에 CSRF 토큰 히든 필드 자동 생성 및 삽입!
-        if(csrfToken) {
-            $('form[method="POST"], form[method="post"]').each(function() {
-                // 이미 토큰이 담겨있는지 확인 후 없으면 주입
-                if ($(this).find('input[name="_csrf"]').length === 0) {
-                    $(this).append('<input type="hidden" name="_csrf" value="' + csrfToken + '" />');
-                }
-            });
-        }
-    });
+       $(".datepicker").setDatepicker();
 
-    $(document).ready(function() {
         var data = [{name: '홍길동', age: 20}, {name: '이순신', age: 30}]
 
         //핸들바 뼈대 가져오기
@@ -76,6 +66,19 @@
 
         //화면에 꽂아넣기
         $("#userList").html(resultHtml);
+
+        // 사용법
+        var pager = new PaginationManager('paging-area', 50, 10, 'page');
+
+        // 데이터 처리 콜백 설정
+        pager.onPageChange = function(page) {
+            console.log("현재 페이지 데이터 로드: " + page);
+        };
+
+        pager.render();
+
+        // 나중에 필요할 때 모드 전환
+        // pager.updateConfig('loadMore', 10);
 
     });
 </script>

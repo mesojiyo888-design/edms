@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>첨부파일 컴포넌트</title>
-    <script src="${pageContext.request.contextPath}/js/egovframework/jquery-3.6.1.min.js"></script>
-    <script src="${pageContext.request.contextPath}/js/common/fileUpload.js"></script>
+
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f8f9fa; }
         .biz-card { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }

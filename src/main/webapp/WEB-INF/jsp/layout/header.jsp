@@ -3,11 +3,21 @@
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
-<script src="${pageContext.request.contextPath}/js/egovframework/jquery-3.6.1.min.js"></script>
-
 <script>
     var _CONTEXT_PATH = "${pageContext.request.contextPath}" || "";
+</script>
 
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jquery-ui-1.14.2/jquery-ui.css">
+
+<script src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min-3.6.1.js"></script>
+<script src="${pageContext.request.contextPath}/js/lib/jquery/jquery-ui-1.14.2/jquery-ui.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/datepicker-utils.js"></script>
+
+<script src="${pageContext.request.contextPath}/js/common/fileUpload.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/pagination.js"></script>
+<script src="${pageContext.request.contextPath}/js/lib/handlebars/handlebars-4.7.7.js"></script>
+
+<script>
     $(function () {
 
             // window 객체에 바인딩하여 전역 변수(Global Variable)화 시킵니다.
@@ -21,6 +31,17 @@
                     xhr.setRequestHeader(window.csrfHeaderName, window.csrfToken);
                 }
             });
+
+            axios.interceptors.request.use(function (config) {
+                // 모든 요청 헤더에 CSRF 토큰을 자동으로 추가
+                if (window.csrfToken && window.csrfHeaderName) {
+                    config.headers[window.csrfHeaderName] = window.csrfToken;
+                }
+                return config;
+            }, function (error) {
+                return Promise.reject(error);
+            });
+
         });
 </script>
 
