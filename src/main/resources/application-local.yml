@@ -4,32 +4,30 @@ server:
 spring:
   config:
     activate:
-      on-profile: oper
+      on-profile: local
     datasource:
-      #jdni설정
       jndi-name: java:comp/env/jdbc/myDataSource
       driver-class-name: org.postgresql.Driver
-      # 실제 운영 DB 주소로 변경 필요 (현재는 로컬호스트)
-      url: jdbc:postgresql://localhost:5432/oper_db
-      username: oper_user
-      password: oper_password
+      url: jdbc:postgresql://localhost:5432/dev_db
+      username: dev_user
+      password: dev_password
 
 p6spy:
   config:
     log-message-format: egovframework.config.P6SpyConfig
-    include-categories: statement  # resultset 제거 (성능)
+    include-categories: statement,resultset
 
 logging:
   level:
-    root: warn
-    egovframework: info
-    edms: info
-    p6spy: info
+    root: info
+    egovframework: debug
+    edms: debug
+    p6spy: debug
     jdbc:
       error: error
       connection: error
       audit: error
       sqltiming: error
     jdbc.sqlonly: off
-    jdbc.resultsettable: warn
+    jdbc.resultsettable: info
   config: classpath:log4j2.xml

@@ -1,35 +1,52 @@
 package egovframework.config;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class EgovConfigDatasource {
-/*
 
-	@Bean(name="dataSource")
-	public DataSource dataSource() {
-	    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-	    return builder.setType(EmbeddedDatabaseType.HSQL).addScript("classpath:/db/sampledb.sql").build();
-	}
-*/
-
+    @Value("${spring.profiles.active}")
+    private String profile;
+    @Value("${spring.config.datasource.jndi-name}")
+    private String jndiName;
+    // 로컬 환경을 위한 변수 추가
+    @Value("${spring.config.datasource.driver-class-name}")
+    private String driver;
+    @Value("${spring.config.datasource.url}")
+    private String url;
+    @Value("${spring.config.datasource.username}")
+    private String username;
+    @Value("${spring.config.datasource.password}")
+    private String password;
 
     @Bean(name="dataSource")
     public DataSource dataSource() {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
-        dataSource.setUrl("jdbc:oracle:thin:@...:1521:SID");
-        dataSource.setUsername("your_id");
-        dataSource.setPassword("your_pw");
-        return dataSource;
+        // 프로필 읽기
+
+        if (!"oper".equals(profile)) {
+            BasicDataSource ds = new BasicDataSource();
+            ds.setDriverClassName(driver);
+            ds.setUrl(url);
+            ds.setUsername(username);
+            ds.setPassword(password);
+            return ds;
+        } else {
+            // JNDI 방식
+            org.springframework.jndi.JndiObjectFactoryBean jndi = new org.springframework.jndi.JndiObjectFactoryBean();
+            jndi.setJndiName(jndiName);
+            jndi.setResourceRef(true);
+            try {
+                jndi.afterPropertiesSet();
+            } catch (Exception e) {
+                throw new RuntimeException("JNDI 설정 오류", e);
+            }
+            return (DataSource) jndi.getObject();
+        }
     }
-
-
 
 }

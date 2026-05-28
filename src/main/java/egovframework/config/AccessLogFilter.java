@@ -27,7 +27,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println(">>> 요청 감지: " + request.getMethod() + " " + request.getRequestURI());
+        //System.out.println(">>> 요청 감지: " + request.getMethod() + " " + request.getRequestURI());
         // 💡 [핵심] 일회용 리퀘스트를 여러 번 읽을 수 있는 캐싱 리퀘스트로 래핑합니다.
         ContentCachingRequestWrapper wrappingRequest = new ContentCachingRequestWrapper(request);
 
@@ -42,7 +42,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
 
     private void logRequest(ContentCachingRequestWrapper request) {
         String requestURI = request.getRequestURI();
-        System.out.println(">>> 로그 기록 시도: " + requestURI); // 이것이 찍히는지 확인!
+        //System.out.println(">>> 로그 기록 시도: " + requestURI); // 이것이 찍히는지 확인!
 
         // 정적 리소스(CSS, JS, 이미지 등) 요청은 로그가 너무 많이 쌓이므로 수집 제외
         if (requestURI.contains("/resources/")
@@ -96,10 +96,10 @@ public class AccessLogFilter extends OncePerRequestFilter {
         // 3. 로그 통합 출력 및 DB 저장 포인트
         // 파라미터가 있으면 파라미터를, JSON 바디가 있으면 바디를 노출합니다.
         String finalPayload = !bodyData.isEmpty() ? "BODY: " + bodyData : "PARAM: [" + queryString + "]";
-
+        log.info("#####################################ACCESS start ##############################################");
         log.info("[ACCESS LOG] 유저: {} | IP: {} | 호출: {}.{}() | 메서드: {} | 경로: {} | 데이터: {}",
                 userId, ip, controllerName, methodName, method, requestURI, finalPayload);
-
+        log.info("#####################################ACCESS end ##############################################");
         /*
          * 📝 [진짜 실무 저장 로직 배치 공간]
          * 여기에 MyBatis Mapper나 Service를 호출해서 디비에 insert 하시면 됩니다.

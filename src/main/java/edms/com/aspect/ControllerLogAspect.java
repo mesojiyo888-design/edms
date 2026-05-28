@@ -26,7 +26,7 @@ public class ControllerLogAspect {
 
     @Before("controllerPoints()")
     public void doBefore(JoinPoint joinPoint) {
-        System.out.println("#####################################ControllerLogAspect start ##############################################");
+        log.info("#####################################ControllerLogAspect start ##############################################");
         // 1. 컨트롤러 클래스명, 메서드명 추출
         String controllerName = joinPoint.getTarget().getClass().getSimpleName();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -72,7 +72,7 @@ public class ControllerLogAspect {
             // 5. 통합 로그 출력
             log.info("[AOP LOG] 유저: {} | 호출: {}.{}() | 데이터: [{}] | HTTP: {} | 주소: {}",
                     userId, controllerName, methodName, finalParams, httpMethod, requestURI);
-
+            log.info("#####################################ControllerLogAspect end ##############################################");
             /*
              * 여기에 오차 없이 완전히 바인딩된 finalParams 데이터를 DB에 INSERT 하시면 됩니다.
              */

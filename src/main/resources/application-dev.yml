@@ -6,6 +6,7 @@ spring:
     activate:
       on-profile: dev
     datasource:
+      jndi-name: java:comp/env/jdbc/myDataSource
       driver-class-name: org.postgresql.Driver
       url: jdbc:postgresql://localhost:5432/dev_db
       username: dev_user
