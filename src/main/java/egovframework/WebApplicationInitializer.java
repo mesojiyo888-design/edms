@@ -32,6 +32,7 @@ public class WebApplicationInitializer extends AbstractAnnotationConfigDispatche
     protected Filter[] getServletFilters() {
         // 여기서 필터를 스프링 컨텍스트의 빈과 연결하여 등록합니다!
         return new Filter[] {
+                new org.springframework.web.filter.DelegatingFilterProxy("springSecurityFilterChain"),
                 new AccessLogFilter()
         };
     }

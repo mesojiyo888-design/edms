@@ -96,10 +96,10 @@ public class AccessLogFilter extends OncePerRequestFilter {
         // 3. 로그 통합 출력 및 DB 저장 포인트
         // 파라미터가 있으면 파라미터를, JSON 바디가 있으면 바디를 노출합니다.
         String finalPayload = !bodyData.isEmpty() ? "BODY: " + bodyData : "PARAM: [" + queryString + "]";
-        log.info("#####################################ACCESS start ##############################################");
+        log.info("#####################################AccessLogFilter start ##############################################");
         log.info("[ACCESS LOG] 유저: {} | IP: {} | 호출: {}.{}() | 메서드: {} | 경로: {} | 데이터: {}",
                 userId, ip, controllerName, methodName, method, requestURI, finalPayload);
-        log.info("#####################################ACCESS end ##############################################");
+        log.info("#####################################AccessLogFilter end ##############################################");
         /*
          * 📝 [진짜 실무 저장 로직 배치 공간]
          * 여기에 MyBatis Mapper나 Service를 호출해서 디비에 insert 하시면 됩니다.

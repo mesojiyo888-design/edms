@@ -31,11 +31,18 @@ import java.util.Collections;
 @Order(1)
 public class SsoIntegratedConfig {
 
+
+    @Bean
+    public SsoAuthenticationFilter ssoAuthenticationFilter() {
+        return new SsoAuthenticationFilter();
+    }
     // ==========================================
     // [1] Spring Security 기본 환경 설정
     // ==========================================
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+
         http
                 .csrf()
                 //.disable()
@@ -54,7 +61,7 @@ public class SsoIntegratedConfig {
                 // .authenticationEntryPoint(customAuthenticationEntryPoint()) // 방법 A: 403 에러코드 가기
                 .authenticationEntryPoint(customRedirectEntryPoint())          // 방법 B: 커스텀 페이지 가기
                 .and()
-                .addFilterBefore(new SsoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(ssoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 ;
 
         return http.build();
@@ -78,6 +85,7 @@ public class SsoIntegratedConfig {
         };
     }
 
+
     // ==========================================
     // [2] SSO 헤더 감지용 시큐리티 필터
     // ==========================================
@@ -85,7 +93,7 @@ public class SsoIntegratedConfig {
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                 throws ServletException, IOException {
-
+            System.out.println("SsoAuthenticationFilter ");
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 filterChain.doFilter(request, response);
                 return;
