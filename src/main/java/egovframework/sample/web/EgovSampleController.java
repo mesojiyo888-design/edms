@@ -7,10 +7,7 @@ import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import egovframework.sample.service.EgovSampleService;
 import egovframework.sample.service.SampleVO;
@@ -30,7 +27,7 @@ public class EgovSampleController {
 	 * @GetMapping("/") public String search(@ModelAttribute SampleVO sampleVO,
 	 * Model model) throws Exception { return this.list(sampleVO, model); }
 	 */
-	@PostMapping("/sample/list")
+    @RequestMapping(value = "/sample/list", method = {RequestMethod.GET, RequestMethod.POST})
 	public String list(@ModelAttribute SampleVO sampleVO, Model model) throws Exception {
 		sampleVO.setPageUnit(propertiesService.getInt("pageUnit"));
 		sampleVO.setPageSize(propertiesService.getInt("pageSize"));

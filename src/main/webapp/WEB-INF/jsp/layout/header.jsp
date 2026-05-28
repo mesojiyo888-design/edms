@@ -31,7 +31,7 @@
                     xhr.setRequestHeader(window.csrfHeaderName, window.csrfToken);
                 }
             });
-
+            /*
             axios.interceptors.request.use(function (config) {
                 // 모든 요청 헤더에 CSRF 토큰을 자동으로 추가
                 if (window.csrfToken && window.csrfHeaderName) {
@@ -41,6 +41,7 @@
             }, function (error) {
                 return Promise.reject(error);
             });
+            */
 
         });
 </script>

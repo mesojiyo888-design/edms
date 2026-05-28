@@ -1,4 +1,4 @@
-package egovframework.config;
+package edms.com.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,7 +14,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 @Aspect
 @Component
@@ -27,6 +26,7 @@ public class ControllerLogAspect {
 
     @Before("controllerPoints()")
     public void doBefore(JoinPoint joinPoint) {
+        System.out.println("#####################################ControllerLogAspect start ##############################################");
         // 1. 컨트롤러 클래스명, 메서드명 추출
         String controllerName = joinPoint.getTarget().getClass().getSimpleName();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();

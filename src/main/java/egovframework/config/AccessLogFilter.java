@@ -3,6 +3,7 @@ package egovframework.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
+@Component("accessLogFilter")
 public class AccessLogFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(AccessLogFilter.class);
@@ -25,6 +27,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println(">>> 요청 감지: " + request.getMethod() + " " + request.getRequestURI());
         // 💡 [핵심] 일회용 리퀘스트를 여러 번 읽을 수 있는 캐싱 리퀘스트로 래핑합니다.
         ContentCachingRequestWrapper wrappingRequest = new ContentCachingRequestWrapper(request);
 
@@ -39,6 +42,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
 
     private void logRequest(ContentCachingRequestWrapper request) {
         String requestURI = request.getRequestURI();
+        System.out.println(">>> 로그 기록 시도: " + requestURI); // 이것이 찍히는지 확인!
 
         // 정적 리소스(CSS, JS, 이미지 등) 요청은 로그가 너무 많이 쌓이므로 수집 제외
         if (requestURI.contains("/resources/")

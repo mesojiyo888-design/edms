@@ -13,7 +13,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="edms" options="-parameters" />
+      <module name="edms" options="" />
     </option>
   </component>
 </project>

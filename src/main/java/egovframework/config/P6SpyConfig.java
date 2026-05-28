@@ -1,8 +1,8 @@
 package egovframework.config;
 
+import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.p6spy.engine.logging.Category;
 import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
-import org.hibernate.engine.jdbc.internal.FormatStyle;
 import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
 import com.p6spy.engine.spy.P6SpyOptions;
@@ -57,9 +57,9 @@ public class P6SpyConfig implements MessageFormattingStrategy {
 
             // 기존 조건에 select, insert, update, delete 추가하여 포맷팅이 먹히도록 개선
             if (tmpsql.startsWith("create") || tmpsql.startsWith("alter") || tmpsql.startsWith("comment")) {
-                return FormatStyle.DDL.getFormatter().format(sql);
+                return SqlFormatter.format(sql); // 하이버네이트 대신 사용
             } else {
-                return FormatStyle.BASIC.getFormatter().format(sql);
+                return SqlFormatter.format(sql);
             }
         }
         return sql;

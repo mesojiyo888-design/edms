@@ -25,13 +25,16 @@
             <AppenderRef ref="console" />
         </Logger>
 
+        <Logger name="EDMS" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
         <Logger name="egovframework" level="DEBUG" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
         <Logger name="org.egovframe" level="DEBUG" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.springframework" level="INFO" additivity="false">
+        <Logger name="org.springframework" level="ERROR" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
 

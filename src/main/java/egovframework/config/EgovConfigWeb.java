@@ -3,31 +3,42 @@ package egovframework.config;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import javax.annotation.PostConstruct;
+
 @Configuration
+@EnableWebMvc
+@EnableAspectJAutoProxy
+@ComponentScan(basePackages = {"edms", "egovframework"}) // 핵심 컨트롤러와 서비스 스캔
 @Import({
-		EgovConfigAspect.class,
-		EgovConfigCommon.class,
-		EgovConfigDatasource.class,
-		EgovConfigIdGeneration.class,
-		EgovConfigMapper.class,
-		EgovConfigProperties.class,
-		EgovConfigTransaction.class,
-		EgovConfigValidation.class
+        EgovConfigAspect.class,
+        EgovConfigCommon.class,
+        EgovConfigDatasource.class,
+        EgovConfigIdGeneration.class,
+        EgovConfigMapper.class,
+        EgovConfigProperties.class,
+        EgovConfigTransaction.class,
+        EgovConfigValidation.class,
+        SsoIntegratedConfig.class, // 추가
+        AccessLogFilter.class,     // 추가
+        TilesConfig.class,         // 추가
+        P6SpyConfig.class          // 추가
 })
 public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware {
 
@@ -36,37 +47,10 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 	public void setApplicationContext(final ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
-/*
-	@Bean
-	public SpringResourceTemplateResolver templateResolver() {
-		SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
-		templateResolver.setApplicationContext(this.applicationContext);
-		templateResolver.setPrefix("classpath:/templates/thymeleaf/");
-		templateResolver.setSuffix(".html");
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		templateResolver.setCacheable(true);
-		return templateResolver;
-	}
 
-	@Bean
-	public SpringTemplateEngine templateEngine() {
-		SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-		templateEngine.setTemplateResolver(templateResolver());
-		templateEngine.setEnableSpringELCompiler(true);
-		// add custom tag
-		templateEngine.addDialect(new EgovPaginationDialect());
-		return templateEngine;
-	}
-	
-	@Bean
-	public ThymeleafViewResolver thymeleafViewResolver() {
-		ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-		viewResolver.setCharacterEncoding("UTF-8");
-		viewResolver.setTemplateEngine(templateEngine());
-		return viewResolver;
-	}
-*/
-	
+    @Autowired
+    private RequestMappingHandlerMapping requestMappingHandlerMapping;
+
 	@Bean
 	public InternalResourceViewResolver jspViewResolver() {
 	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
@@ -74,10 +58,10 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 	    // JSP 표준 태그 라이브러리(JSTL)를 사용할 수 있도록 뷰 클래스 지정
 	    viewResolver.setViewClass(JstlView.class);
 	    
-	    // ⭕ 실제 경로를 WEB-INF 밑으로 지정
+	    // 실제 경로를 WEB-INF 밑으로 지정
 	    viewResolver.setPrefix("/WEB-INF/jsp/"); // 상황에 맞게 /WEB-INF/views/ 등으로 수정 가능
 	    
-	    // ⭕ 확장자를 .jsp로 지정
+	    // 확장자를 .jsp로 지정
 	    viewResolver.setSuffix(".jsp");
 	    
 	    return viewResolver;
@@ -128,4 +112,11 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 		resolvers.add(smer);
 	}
 
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+        resolver.setMaxUploadSize(1024 * 1024 * 100); // 100MB
+        resolver.setDefaultEncoding("UTF-8");
+        return resolver;
+    }
 }

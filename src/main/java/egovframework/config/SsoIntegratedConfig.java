@@ -3,7 +3,6 @@ package egovframework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -56,7 +55,7 @@ public class SsoIntegratedConfig {
                 .authenticationEntryPoint(customRedirectEntryPoint())          // 방법 B: 커스텀 페이지 가기
                 .and()
                 .addFilterBefore(new SsoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new AccessLogFilter(), SsoAuthenticationFilter.class);
+                ;
 
         return http.build();
     }
