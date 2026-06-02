@@ -1,12 +1,17 @@
 package egovframework;
 
 import egovframework.config.*;
-import org.apache.logging.log4j.web.Log4jServletContextListener;
+import egovframework.filter.AccessLogFilter;
+import egovframework.filter.XssFilter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import javax.servlet.Filter;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import java.util.List;
 
 public class WebApplicationInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
@@ -30,12 +35,14 @@ public class WebApplicationInitializer extends AbstractAnnotationConfigDispatche
 
     @Override
     protected Filter[] getServletFilters() {
+
         // 여기서 필터를 스프링 컨텍스트의 빈과 연결하여 등록합니다!
         return new Filter[] {
-                new org.springframework.web.filter.DelegatingFilterProxy("springSecurityFilterChain"),
-                new AccessLogFilter()
+                new CharacterEncodingFilter("UTF-8", true),
+                new AccessLogFilter(),
+                new XssFilter(),
+                new DelegatingFilterProxy("springSecurityFilterChain")
         };
     }
-
 
 }

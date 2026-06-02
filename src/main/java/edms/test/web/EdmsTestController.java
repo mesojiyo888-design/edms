@@ -1,10 +1,6 @@
 package edms.test.web;
 
-import egovframework.sample.service.EgovSampleService;
-import egovframework.sample.service.SampleVO;
-import lombok.RequiredArgsConstructor;
-import org.egovframe.rte.fdl.property.EgovPropertyService;
-import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import edms.sample.service.SampleVO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

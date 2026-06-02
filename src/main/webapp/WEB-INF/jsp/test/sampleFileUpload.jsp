@@ -65,7 +65,12 @@
             processData: false,
             contentType: false,
             success: function(response) {
-                alert("성공적으로 서버에 통합 매핑 처리되었습니다.");
+                console.log("서버 응답:", JSON.stringify(response));
+                if(response.success) {
+                    alert("성공적으로 서버에 통합 매핑 처리되었습니다.");
+                } else {
+                    alert("서버 처리 중 오류가 발생했습니다: " + response.message);
+                }
             },
             error: function() {
                 alert("네트워크 통신 오류 혹은 매핑 주소를 확인하세요.");

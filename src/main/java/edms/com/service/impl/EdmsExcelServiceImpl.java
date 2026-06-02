@@ -4,6 +4,8 @@ import edms.com.service.EdmsExcelService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 
@@ -21,7 +23,7 @@ import java.util.Map;
 
 @Service("edmsExcelService")
 public class EdmsExcelServiceImpl implements EdmsExcelService {
-
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
     @Override
     public void createExcelDownload(OutputStream os, String[] headers, String[] dataKeys, List<Map<String, Object>> dataList) throws Exception {
         SXSSFWorkbook workbook = new SXSSFWorkbook(100);
@@ -59,69 +61,8 @@ public class EdmsExcelServiceImpl implements EdmsExcelService {
     public List<Map<String, String>> readExcelUpload(InputStream is) throws Exception {
         List<Map<String, String>> resultList = new ArrayList<>();
 
-        // 1. 스프링 내장 유틸로 바이트 완전 복사
         byte[] fileBytes = StreamUtils.copyToByteArray(is);
 
-        // 2. [완전 방어 코드] 엑셀 검증 다 건너뛰고 텍스트 라인 바인딩을 강제로 먼저 수행합니다.
-        // MS 엑셀 표준 출력과 일반 인코딩을 다 잡기 위해 UTF-8과 MS949(EUC-KR) 범용 스트림으로 읽습니다.
-        try (InputStream csvIs = new ByteArrayInputStream(fileBytes);
-             BufferedReader br = new BufferedReader(new InputStreamReader(csvIs, StandardCharsets.UTF_8))) {
-
-            String line;
-            int currentLineNum = 0;
-
-            while ((line = br.readLine()) != null) {
-                // 완전히 빈 줄이거나 바이너리 엑셀 찌꺼기 깨진 글자 라인이면 패스
-                if (line.trim().isEmpty()) continue;
-
-                // 첫 줄(0번째)은 "번호,이름,이메일" 헤더이므로 무조건 데이터 바인딩에서 제외
-                if (currentLineNum == 0) {
-                    currentLineNum++;
-                    continue;
-                }
-
-                // 쉼표(,) 기준으로 무조건 강제 분할 (-1 옵션으로 빈 값 누락 방지)
-                String[] tokens = line.split(",", -1);
-
-                // 쉼표로 쪼갰는데 컬럼 분리가 전혀 안 되었다면(데이터가 없거나 진짜 바이너리 엑셀 파일) 루프 탈출
-                if (tokens.length <= 1) {
-                    break;
-                }
-
-                Map<String, String> data = new HashMap<>();
-                boolean hasRealValue = false;
-
-                for (int colIdx = 0; colIdx < tokens.length; colIdx++) {
-                    String cellValue = tokens[colIdx].trim();
-
-                    // 가끔 깨진 바이너리 기호가 섞여 들어오는 현상 필터링
-                    if (cellValue.contains("\u0000") || cellValue.contains("")) {
-                        cellValue = "";
-                    }
-
-                    data.put("cell_" + colIdx, cellValue);
-
-                    if (!cellValue.isEmpty()) {
-                        hasRealValue = true; // 빈 문자열이 아닌 진짜 텍스트가 박혀있는지 체크
-                    }
-                }
-
-                if (hasRealValue) {
-                    resultList.add(data);
-                }
-                currentLineNum++;
-            }
-
-            // 위 강제 파싱 코드로 데이터가 1건이라도 건져졌다면 즉시 화면으로 반환
-            if (!resultList.isEmpty()) {
-                return resultList;
-            }
-        } catch (Exception e) {
-            // 실패 시 아래 순수 엑셀 로직으로 이동하기 위해 예외 무시
-        }
-
-        // 3. 만약 위 텍스트 강제 파싱으로 한 건도 안 나왔다면, 그제서야 진짜 순수 엑셀(.xlsx) 파일 구조로 해독 시작
-        resultList.clear();
         try (InputStream xlsxIs = new ByteArrayInputStream(fileBytes);
              Workbook workbook = new XSSFWorkbook(xlsxIs)) {
 
@@ -131,10 +72,12 @@ public class EdmsExcelServiceImpl implements EdmsExcelService {
 
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
-                if (rowIdx == 0) { rowIdx++; continue; } // 첫 줄 헤더 스킵
+                if (rowIdx == 0) {
+                    rowIdx++; continue;
+                } // 첫 줄 헤더 스킵
 
                 Map<String, String> data = new HashMap<>();
-                boolean hasData = false;
+
                 short totalCells = row.getLastCellNum();
 
                 for (int colIdx = 0; colIdx < totalCells; colIdx++) {
@@ -142,9 +85,9 @@ public class EdmsExcelServiceImpl implements EdmsExcelService {
                     String cellValue = (cell != null) ? getCellValueString(cell) : "";
 
                     data.put("cell_" + colIdx, cellValue);
-                    if (!cellValue.isEmpty()) hasData = true;
+
                 }
-                if (hasData) resultList.add(data);
+                resultList.add(data);
                 rowIdx++;
             }
         }

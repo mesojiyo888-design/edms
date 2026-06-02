@@ -49,5 +49,11 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h1 style="margin: 0; font-size: 20px;">Portal</h1>
-    <span>접속자: 관리자(Admin)</span>
+
+    <security:authorize access="isAuthenticated()">
+        <span style="margin-left: 20px; color: #007bff;">접속자 [${principal}]</span>
+    </c:if>
+    <security:authorize access="isAuthenticated()">
+        <button onclick="location.href='/logout'">Logout</button>
+    </c:if>
 </div>

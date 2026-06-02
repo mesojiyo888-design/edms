@@ -1,5 +1,7 @@
 package egovframework.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -10,15 +12,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -41,21 +43,26 @@ public class SsoIntegratedConfig {
     // ==========================================
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-
         http
                 .csrf()
                 //.disable()
-                .ignoringAntMatchers("/sso/receive", "/dummy-login-process")
+                .ignoringRequestMatchers(
+                        new AntPathRequestMatcher("/logout"),
+                        new AntPathRequestMatcher("/dummy-login-process"),
+                        new AntPathRequestMatcher("/api/**"),
+                        new AntPathRequestMatcher("/sso/callback")
+                )
                 .and()
                 .headers().frameOptions().disable()
                 .and()
-                .authorizeRequests()
-                // 로그인 화면, 로그인 처리, 그리고 에러/권한없음 페이지는 무조건 허용
-                .antMatchers("/login", "/dummy-login-process", "/error", "/denied").permitAll()
-                // 그 외 시스템의 모든 요청은 로그인(인증) 필수
-                .anyRequest().authenticated()
-                .and()
+                .authorizeHttpRequests(auth -> auth
+                    // 로그인 화면, 로그인 처리, 그리고 에러/권한없음 페이지는 무조건 허용
+                    .requestMatchers("/login", "/dummy-login-process", "/error", "/denied", "/logout").permitAll()
+                    //.requestMatchers("/admin/**").hasRole("ADMIN")
+                    // 그 외 시스템의 모든 요청은 로그인(인증) 필수
+                    .anyRequest().authenticated()
+                    .and()
+                )
                 // ⭐️ [추가] 인증 실패(비로그인) 시 예외 처리 핸들러 작동
                 .exceptionHandling()
                 // .authenticationEntryPoint(customAuthenticationEntryPoint()) // 방법 A: 403 에러코드 가기
@@ -93,7 +100,7 @@ public class SsoIntegratedConfig {
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                 throws ServletException, IOException {
-            System.out.println("SsoAuthenticationFilter ");
+
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 filterChain.doFilter(request, response);
                 return;
@@ -116,7 +123,7 @@ public class SsoIntegratedConfig {
     // ==========================================
     @Controller
     public static class DummyLoginController {
-
+        private static final Logger log = LoggerFactory.getLogger(DummyLoginController.class);
 
         @GetMapping("/login")
         public String dummyLoginPage() {
@@ -152,6 +159,23 @@ public class SsoIntegratedConfig {
                 model.addAttribute("userId", "인증 실패 - 세션 없음");
             }
             return "main/main";
+        }
+
+        @RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
+        public String logout(HttpServletRequest request, HttpServletResponse response) {
+            System.out.println(">>> 로그아웃 처리 시작");
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate(); // 서버 내 세션 객체 제거
+            }
+
+            // JSESSIONID 쿠키 제거 (브라우저에 명시적 삭제 명령)
+            Cookie cookie = new Cookie("JSESSIONID", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            return "redirect:/login";
         }
     }
 }

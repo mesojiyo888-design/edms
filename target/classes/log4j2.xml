@@ -25,7 +25,7 @@
             <AppenderRef ref="console" />
         </Logger>
 
-        <Logger name="EDMS" level="DEBUG" additivity="false">
+        <Logger name="edms" level="DEBUG" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
         <Logger name="egovframework" level="DEBUG" additivity="false">

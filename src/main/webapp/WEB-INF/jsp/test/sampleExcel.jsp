@@ -26,6 +26,12 @@
         <a href="${pageContext.request.contextPath}/sample/excel/download">
             <button type="button" style="padding: 10px 20px; cursor: pointer;">엑셀 다운로드 (.xlsx)</button>
         </a>
+        <a href="${pageContext.request.contextPath}/sample/excel/xmldownload">
+            <button type="button" style="padding: 10px 20px; cursor: pointer;">XML 다운로드 (.xml)</button>
+        </a>
+        <a href="${pageContext.request.contextPath}/sample/excel/downloadCsv">
+            <button type="button" style="padding: 10px 20px; cursor: pointer;">CSV 다운로드 (.csv)</button>
+        </a>
     </div>
 
     <!-- 2. 업로드 영역 -->
@@ -52,6 +58,14 @@
             </tbody>
         </table>
     </div>
+    <div>
+        <table>
+            <tr>
+                <td><textarea id="brdContent" name="brdContent" rows="4" cols="50"></textarea></td>
+            </tr>
+        </table>
+
+    </div>
 
     <script>
         function uploadFile() {
@@ -61,15 +75,11 @@
               return;
           }
 
-          // 1. 파일 데이터를 다루기 위한 FormData 객체 생성
+          // 파일 데이터를 다루기 위한 FormData 객체 생성
           const formData = new FormData();
           formData.append("file", fileInput.files[0]);
+          formData.append("brdContent", $("#brdContent").val()); // 추가 데이터 예시
 
-          // 2. Spring Security CSRF 토큰 값 추출 (JSP 환경 표준 변수)
-          const csrfToken = "${_csrf.token}";
-          const csrfHeader = "${_csrf.headerName}";
-
-          // 3. jQuery AJAX 호출
           $.ajax({
               url: '${pageContext.request.contextPath}/sample/excel/upload',
               type: 'POST',
@@ -77,12 +87,10 @@
               processData: false,  // 쿼리 스트링 변환 방지 (파일 전송 시 필수)
               contentType: false,  // 브라우저가 자동으로 multipart/form-data 헤더를 세팅하도록 설정 (파일 전송 시 필수)
               beforeSend: function(xhr) {
-                  // 403 에러 방지를 위해 요청 전 헤더에 CSRF 토큰 주입
-                  if (csrfHeader && csrfToken) {
-                      xhr.setRequestHeader(csrfHeader, csrfToken);
-                  }
+
               },
               success: function(data) {
+                    console.log("AJAX Success:", JSON.stringify(data));
                   // jQuery는 서버 응답이 성공(200 OK)이고 JSON 포맷이면 자동으로 파싱해 줍니다.
                   const tbody = $('#resultBody');
                   tbody.empty(); // 기존 테이블 데이터 초기화
@@ -94,6 +102,7 @@
 
                   // 기존 자바스크립트의 data.forEach 에러 해결 (안전하게 루프 실행)
                   $.each(data, function(index, row) {
+
                         const tr = `
                             <tr>
                                 <td>\${row.cell_0 != null ? row.cell_0 : ''}</td>

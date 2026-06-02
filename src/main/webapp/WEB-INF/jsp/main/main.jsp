@@ -12,6 +12,12 @@
 </div>
 <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; display: inline-block;">
     <p>현재 로그인된 유저 사번/ID: <strong style="color: #dc3545; font-size: 18px;">${userId}</strong></p>
+    <ul>
+        <li><a href="/file-page" style="color: #007bff; text-decoration: none;">파일첨부 예제</a></li>
+        <li><a href="/sample/excel" style="color: #007bff; text-decoration: none;">엑셀업/다운로드 예제</a></li>
+        <li><a href="/test/list" style="color: #007bff; text-decoration: none;">핸들바 예제</a></li>
+        <li><a href="/test/vue" style="color: #007bff; text-decoration: none;">vue 화면 예제</a></li>
+    </ul>
 </div>
 </body>
 </html>

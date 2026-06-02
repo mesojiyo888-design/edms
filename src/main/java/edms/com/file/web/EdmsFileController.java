@@ -2,7 +2,11 @@ package edms.com.file.web;
 
 import edms.com.file.service.EdmsFileService;
 import edms.com.file.service.EdmsFileVo;
+import egovframework.exception.ApiResponse;
+import egovframework.exception.EdmsException;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +55,7 @@ public class EdmsFileController {
      */
     @PostMapping("/file/save-process")
     @ResponseBody
-    public String saveProcess(MultipartHttpServletRequest request) {
+    public ApiResponse<?> saveProcess(MultipartHttpServletRequest request) {
         try {
 
             System.out.println("이미지 파일 ID: " + request.getParameter("imgFileId"));
@@ -98,10 +102,10 @@ public class EdmsFileController {
             //boardService.updateBoardFileIds(title, imgFileId, docFileId);
             System.out.println("디비 매핑 완료 -> 이미지ID: " + imgFileId + " | 서류ID: " + docFileId);
 
-            return "SUCCESS";
+
+            return ApiResponse.success("다운로드 시작");
         } catch (Exception e) {
-            e.printStackTrace();
-            return "FAIL";
+            throw new EdmsException("파일 저장 중 오류가 발생했습니다.", "ERR_500_FILE_SAVE", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 

@@ -1,33 +1,31 @@
 package egovframework.config;
 
 import java.util.List;
-import java.util.Properties;
 
+import egovframework.filter.AccessLogFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
-import javax.annotation.PostConstruct;
-
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = {"edms", "egovframework"}) // 핵심 컨트롤러와 서비스 스캔
 @Import({
-        EgovConfigAspect.class,
         EgovConfigCommon.class,
         EgovConfigDatasource.class,
         EgovConfigIdGeneration.class,
@@ -77,7 +75,7 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 
 	@Bean
 	public SessionLocaleResolver localeResolver() {
-		return new SessionLocaleResolver();
+        return new SessionLocaleResolver();
 	}
 
 	@Bean
@@ -89,27 +87,7 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(localeChangeInterceptor());
-	}
-
-	@Override
-	public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
-		Properties prop = new Properties();
-		prop.setProperty("org.springframework.dao.DataAccessException", "egovSampleError");
-		prop.setProperty("org.springframework.transaction.TransactionException", "egovSampleError");
-		prop.setProperty("org.egovframe.rte.fdl.cmmn.exception.EgovBizException", "egovSampleError");
-		prop.setProperty("org.springframework.security.AccessDeniedException", "egovSampleError");
-		prop.setProperty("java.lang.Throwable", "egovSampleError");
-
-		Properties statusCode = new Properties();
-		statusCode.setProperty("egovSampleError", "400");
-		statusCode.setProperty("egovSampleError", "500");
-
-		SimpleMappingExceptionResolver smer = new SimpleMappingExceptionResolver();
-		smer.setDefaultErrorView("egovSampleError");
-		smer.setExceptionMappings(prop);
-		smer.setStatusCodes(statusCode);
-		resolvers.add(smer);
+        registry.addInterceptor(localeChangeInterceptor());
 	}
 
     @Bean
@@ -120,5 +98,13 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
         return resolver;
     }
 
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        // 컨버터를 먼저 추가 (순서가 중요합니다!)
+        converters.add(new MappingJackson2HttpMessageConverter()); // JSON
+        converters.add(new MappingJackson2XmlHttpMessageConverter()); // XML
+
+        // 추가로 필요한 컨버터가 있다면 여기서 설정
+    }
 
 }
