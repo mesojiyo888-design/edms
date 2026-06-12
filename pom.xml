@@ -25,6 +25,24 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>google</id>
+            <name>Google Maven Repository</name>
+            <url>https://maven.google.com/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -249,6 +267,33 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>2.3.3</version>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/kr.dogfoot/hwplib -->
+        <dependency>
+            <groupId>kr.dogfoot</groupId>
+            <artifactId>hwplib</artifactId>
+            <version>1.1.10</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/kr.dogfoot/hwpxlib -->
+        <dependency>
+            <groupId>kr.dogfoot</groupId>
+            <artifactId>hwpxlib</artifactId>
+            <version>1.0.9</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
