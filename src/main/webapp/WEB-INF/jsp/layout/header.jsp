@@ -19,8 +19,8 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-ui.grid/tui-grid-4.21.22.css" />
 <script src="${pageContext.request.contextPath}/js/lib/toast/toast-ui.grid/tui-grid-4.21.22.js"></script>
 
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.css" /> -->
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.min.css" /> -->
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.css" />
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.min.css" />
 <!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor.css" /> -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor.min.css" />
 <!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-all.js"></script> -->
@@ -29,8 +29,10 @@
 <!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.js"></script> -->
 <!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.min.css" /> -->
 <!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.min.js"></script> -->
-
-
+<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-chart.css" /> -->
+<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-chart.js" /> -->
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-chart.min.css" />
+<script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-chart.min.js" />
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.css" />
 <script src="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.js" />
