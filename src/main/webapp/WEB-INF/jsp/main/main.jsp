@@ -17,6 +17,7 @@
         <li><a href="/sample/excel" style="color: #007bff; text-decoration: none;">엑셀업/다운로드 예제</a></li>
         <li><a href="/test/list" style="color: #007bff; text-decoration: none;">핸들바 예제</a></li>
         <li><a href="/test/vue" style="color: #007bff; text-decoration: none;">vue 화면 예제</a></li>
+        <li><a href="/test/gridlist" style="color: #007bff; text-decoration: none;">그리드 리스트 예제</a></li>
     </ul>
 </div>
 </body>

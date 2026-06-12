@@ -1,14 +1,16 @@
 package edms.test.web;
 
+import edms.com.search.service.SearchVO;
 import edms.sample.service.SampleVO;
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 public class EdmsTestController {
@@ -39,5 +41,47 @@ public class EdmsTestController {
         return result;
     }
 
+    @GetMapping("/test/gridlist")
+    public String gridlist(@ModelAttribute SearchVO searchVO, Model model) throws Exception {
+
+        return "test/testGridList";
+    }
+
+    @GetMapping("/board/list")
+    @ResponseBody
+    public Map<String, Object> getList(SearchVO searchVO) {
+        PaginationInfo paginationInfo = new PaginationInfo();
+        paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
+        paginationInfo.setRecordCountPerPage(searchVO.getPageSize());
+        paginationInfo.setPageSize(10); // 페이지 버튼 개수
+
+        List<Map<String, Object>> dataList = new ArrayList<>();
+
+        int totalCount = 500; //service.selectListCount(searchVO);
+        paginationInfo.setTotalRecordCount(totalCount);
+
+        searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+        searchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+
+        for (int i = paginationInfo.getFirstRecordIndex(); i <= paginationInfo.getLastRecordIndex(); i++) {
+            Map<String, Object> rowData = new HashMap<>();
+            rowData.put("name", "홍길동" + i);
+            rowData.put("email", "user" + i + "@example.com");
+            rowData.put("codeId", i%2 == 0 ? "C" : "W");
+            rowData.put("regDate", new SimpleDateFormat("yyyyMMdd").format(new Date()));
+            rowData.put("useYn", "Y");
+            rowData.put("detail", i);
+            rowData.put("status", i%2 == 0 ? "Y" : "N");
+            dataList.add(rowData);
+        }
+
+        List<?> list = dataList; //service.selectList(searchVO);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("dataList", list);      // 그리드 데이터
+        map.put("totalCount", totalCount);
+        map.put("paginationInfo", paginationInfo);
+        return map;
+    }
 
 }

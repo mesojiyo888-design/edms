@@ -57,7 +57,7 @@ public class SsoIntegratedConfig {
                 .and()
                 .authorizeHttpRequests(auth -> auth
                     // 로그인 화면, 로그인 처리, 그리고 에러/권한없음 페이지는 무조건 허용
-                    .requestMatchers("/login", "/dummy-login-process", "/error", "/denied", "/logout").permitAll()
+                    .requestMatchers("/", "/login", "/dummy-login-process", "/error", "/denied", "/logout").permitAll()
                     //.requestMatchers("/admin/**").hasRole("ADMIN")
                     // 그 외 시스템의 모든 요청은 로그인(인증) 필수
                     .anyRequest().authenticated()
@@ -125,7 +125,7 @@ public class SsoIntegratedConfig {
     public static class DummyLoginController {
         private static final Logger log = LoggerFactory.getLogger(DummyLoginController.class);
 
-        @GetMapping("/login")
+        @GetMapping({"/", "/login"})
         public String dummyLoginPage() {
             return "login/loginSso";
         }

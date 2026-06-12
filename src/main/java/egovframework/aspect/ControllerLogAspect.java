@@ -21,7 +21,7 @@ public class ControllerLogAspect {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerLogAspect.class);
 
-    @Pointcut("execution(* egovframework..*Controller.*(..)) || execution(* edms..*Controller.*(..))")
+    @Pointcut("execution(* egovframework..*Controller.*(..)) || execution(*  edms..*Controller.*(..))")
     public void controllerPoints() {}
 
     @Before("controllerPoints()")
