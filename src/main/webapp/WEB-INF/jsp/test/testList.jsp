@@ -6,32 +6,35 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+<style>
 
+    .tui-datepicker {
+        z-index: 9999 !important;
+    }
+
+    .datepicker-wrapper {
+        position: relative;
+    }
+</style>
 </head>
 
 <body style="text-align:center; margin:0 auto; display:inline; padding-top:100px;">
 <form action="${pageContext.request.contextPath}/board/insert" method="POST">
 
     <table border="1">
-        <c:forEach var="resultList" items="${resultList}" varStatus="resultListStatus">
+        <c:forEach var="dataList" items="${dataList}" varStatus="resultListStatus">
             <tr>
-                <td align="center">
-                    <c:out value="${resultList.id}"/>
+                <td align="left">
+                    <c:out value="${dataList.name}"/>
                 </td>
                 <td align="left">
-                    <c:out value="${resultList.name}"/>
-                </td>
-                <td align="left">
-                    <c:out value="${resultList.description}"/>
-                </td>
-                <td align="center">
-                    <c:out value="${resultList.regUser}"/>
+                    <c:out value="${dataList.email}"/>
                 </td>
                 <td>
-                    <input type="text" name="boardDate" class="datepicker">
+                    <input type="text" name="regDate" id="regDate_${resultListStatus.index}" value="<c:out value="${dataList.regDate}"/>" class="datepicker">
                 </td>
                 <td align="center">
-                    <c:out value="${resultList.useYn}"/>
+                    <c:out value="${dataList.useYn}"/>
                 </td>
             </tr>
         </c:forEach>
@@ -52,8 +55,11 @@
 <script>
 
     $(document).ready(function() {
+        //jQuery UI Datepicker 방식
+        //$(".datepicker").setDatepicker();
 
-       $(".datepicker").setDatepicker();
+        //Toast UI Datepicker 방식
+        ToastDatepicker.initAll();
 
         var data = [{name: '홍길동', age: 20}, {name: '이순신', age: 30}]
 
