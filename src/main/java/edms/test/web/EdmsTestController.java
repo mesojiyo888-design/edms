@@ -84,4 +84,9 @@ public class EdmsTestController {
         return map;
     }
 
+    @GetMapping("/test/commonValidator")
+    public String commonValidator(@ModelAttribute SearchVO searchVO, Model model) throws Exception {
+
+        return "test/commonValidator";
+    }
 }

@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -13,11 +14,12 @@
 <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; display: inline-block;">
     <p>현재 로그인된 유저 사번/ID: <strong style="color: #dc3545; font-size: 18px;">${userId}</strong></p>
     <ul>
-        <li><a href="/file-page" style="color: #007bff; text-decoration: none;">파일첨부 예제</a></li>
-        <li><a href="/sample/excel" style="color: #007bff; text-decoration: none;">엑셀업/다운로드 예제</a></li>
-        <li><a href="/test/list" style="color: #007bff; text-decoration: none;">핸들바 예제</a></li>
-        <li><a href="/test/vue" style="color: #007bff; text-decoration: none;">vue 화면 예제</a></li>
-        <li><a href="/test/gridlist" style="color: #007bff; text-decoration: none;">그리드 리스트 예제</a></li>
+        <li><a href="/file-page" style="color: #007bff; text-decoration: none;" target="_blank">파일첨부 예제</a></li>
+        <li><a href="/sample/excel" style="color: #007bff; text-decoration: none;" target="_blank">엑셀업/다운로드 예제</a></li>
+        <li><a href="/test/list" style="color: #007bff; text-decoration: none;" target="_blank">핸들바 예제</a></li>
+        <li><a href="/test/vue" style="color: #007bff; text-decoration: none;" target="_blank">vue 화면 예제</a></li>
+        <li><a href="/test/gridlist" style="color: #007bff; text-decoration: none;" target="_blank">그리드 리스트 예제</a></li>
+        <li><a href="<c:url value='/test/commonValidator' />" style="color: #007bff; text-decoration: none;" target="_blank">JS Validator 예제</a></li>
     </ul>
 </div>
 </body>
