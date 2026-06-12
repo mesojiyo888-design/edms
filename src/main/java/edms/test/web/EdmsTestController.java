@@ -18,6 +18,19 @@ public class EdmsTestController {
 	@GetMapping("/test/list")
 	public String list(@ModelAttribute SampleVO sampleVO, Model model) throws Exception {
 
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        for (int i = 0; i <= 10; i++) {
+            Map<String, Object> rowData = new HashMap<>();
+            rowData.put("name", "홍길동" + i);
+            rowData.put("email", "user" + i + "@example.com");
+            rowData.put("codeId", i%2 == 0 ? "C" : "W");
+            rowData.put("regDate", new SimpleDateFormat("yyyyMMdd").format(new Date()));
+            rowData.put("useYn", "Y");
+            rowData.put("detail", i);
+            rowData.put("status", i%2 == 0 ? "Y" : "N");
+            dataList.add(rowData);
+        }
+        model.addAttribute("dataList", dataList);
 		return "test/testList";
 	}
 

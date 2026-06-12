@@ -12,6 +12,16 @@
       <option name="url" value="https://maven.egovframe.go.kr/maven/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="spring-milestones" />
+      <option name="name" value="Spring Milestones" />
+      <option name="url" value="https://repo.spring.io/milestone" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="google" />
+      <option name="name" value="Google Maven Repository" />
+      <option name="url" value="https://maven.google.com/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="mvn2s" />
       <option name="name" value="mvn2s" />
       <option name="url" value="https://repo1.maven.org/maven2/" />
