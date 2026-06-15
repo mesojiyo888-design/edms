@@ -27,32 +27,77 @@
 <script src="${pageContext.request.contextPath}/js/lib/handlebars/handlebars-4.7.7.js"></script>
 
 <script>
-    $(function () {
+    (function ($) {
 
-            // window 객체에 바인딩하여 전역 변수(Global Variable)화 시킵니다.
-            window.csrfToken = $("meta[name='_csrf']").attr("content");
-            window.csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
-            window.csrfParameterName = "_csrf"; // 스프링 시큐리티 기본 파라미터명
+        // window 객체에 바인딩하여 전역 변수(Global Variable)화 시킵니다.
+        window.csrfToken = $("meta[name='_csrf']").attr("content");
+        window.csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
+        window.csrfParameterName = "_csrf"; // 스프링 시큐리티 기본 파라미터명
 
-            // 기존 모든 AJAX 통신 처리 로직 유지
-            $(document).ajaxSend(function(e, xhr, options) {
-                if (window.csrfToken && window.csrfHeaderName) {
-                    xhr.setRequestHeader(window.csrfHeaderName, window.csrfToken);
-                }
-            });
-            /*
-            axios.interceptors.request.use(function (config) {
-                // 모든 요청 헤더에 CSRF 토큰을 자동으로 추가
-                if (window.csrfToken && window.csrfHeaderName) {
-                    config.headers[window.csrfHeaderName] = window.csrfToken;
-                }
-                return config;
-            }, function (error) {
-                return Promise.reject(error);
-            });
-            */
-
+        /* ========================
+         * 1. jQuery $.ajax CSRF
+         * ======================== */
+        $(document).ajaxSend(function (e, xhr, options) {
+            if (window.csrfToken && window.csrfHeaderName) {
+                xhr.setRequestHeader(window.csrfHeaderName, window.csrfToken);
+            }
         });
+
+        /* ========================
+         * 2. XMLHttpRequest CSRF
+         * ======================== */
+        var originalXhrOpen = XMLHttpRequest.prototype.open;
+        var originalXhrSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function (method) {
+            this._xhrMethod = method;
+            originalXhrOpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function () {
+            if (this._xhrMethod && this._xhrMethod.toUpperCase() !== 'GET') {
+                if (window.csrfToken && window.csrfHeaderName) {
+                    try {
+                        this.setRequestHeader(window.csrfHeaderName, window.csrfToken);
+                    } catch (e) {
+                        // 이미 전송된 경우 무시
+                    }
+                }
+            }
+            originalXhrSend.apply(this, arguments);
+        };
+
+        /* ========================
+         * 3. fetch CSRF
+         * ======================== */
+        var originalFetch = window.fetch;
+
+        window.fetch = function (url, options) {
+            options = options || {};
+
+            var method = (options.method || 'GET').toUpperCase();
+            if (method !== 'GET') {
+                if (window.csrfToken && window.csrfHeaderName) {
+                    options.headers = options.headers || {};
+                    options.headers[window.csrfHeaderName] = window.csrfToken;
+                }
+            }
+
+            return originalFetch.call(this, url, options);
+        };
+        /*
+        axios.interceptors.request.use(function (config) {
+            // 모든 요청 헤더에 CSRF 토큰을 자동으로 추가
+            if (window.csrfToken && window.csrfHeaderName) {
+                config.headers[window.csrfHeaderName] = window.csrfToken;
+            }
+            return config;
+        }, function (error) {
+            return Promise.reject(error);
+        });
+        */
+
+    }(jQuery));
 </script>
 
 
@@ -61,8 +106,8 @@
 
     <security:authorize access="isAuthenticated()">
         <span style="margin-left: 20px; color: #007bff;">접속자 [${principal}]</span>
-    </c:if>
+    </security:authorize>
     <security:authorize access="isAuthenticated()">
         <button onclick="location.href='/logout'">Logout</button>
-    </c:if>
+    </security:authorize>
 </div>
