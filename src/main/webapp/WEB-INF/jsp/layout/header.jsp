@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
@@ -104,10 +105,10 @@
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h1 style="margin: 0; font-size: 20px;">Portal</h1>
 
-    <security:authorize access="isAuthenticated()">
-        <span style="margin-left: 20px; color: #007bff;">접속자 [${principal}]</span>
-    </security:authorize>
-    <security:authorize access="isAuthenticated()">
+    <sec:authorize access="isAuthenticated()">
+        <span style="margin-left: 20px; color: #007bff;">접속자 [<sec:authentication property="principal" />]</span>
+    </sec:authorize>
+    <sec:authorize access="isAuthenticated()">
         <button onclick="location.href='/logout'">Logout</button>
-    </security:authorize>
+    </sec:authorize>
 </div>
