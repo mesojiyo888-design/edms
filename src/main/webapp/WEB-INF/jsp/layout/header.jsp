@@ -30,8 +30,12 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.min.css" />
 
 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.css" />
-<script src="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.js" ></script>
+<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.css" /> -->
+<!-- <script src="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.js" ></script> -->
+<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jstree/tui-tree-4.0.9.css" /> -->
+<!-- <script src="${pageContext.request.contextPath}/js/lib/jquery/jstree/tui-tree-4.0.9.js" ></script> -->
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jstree/tui-tree.min-4.0.9.css" />
+<script src="${pageContext.request.contextPath}/js/lib/jquery/jstree/tui-tree.min-4.0.9.js" ></script>
 
 <script src="${pageContext.request.contextPath}/js/common/fileUpload.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/pagination.js"></script>
