@@ -3,25 +3,25 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="edms.com.toastEditor.service.impl.EdmsToastEditorMapper">
-/*
-    테이블 예시
-    CREATE TABLE TB_BOARD (
+<!--
+테이블 예시
+CREATE TABLE TB_BOARD (
     BOARD_ID NUMBER PRIMARY KEY,
     TITLE VARCHAR2(300),
     CONTENT CLOB,
     REG_DT DATE DEFAULT SYSDATE
-    );
+);
 
-    CREATE SEQUENCE SEQ_BOARD START WITH 1 INCREMENT BY 1;
-    CREATE TABLE TB_EDITOR_IMAGE (
+CREATE SEQUENCE SEQ_BOARD START WITH 1 INCREMENT BY 1;
+CREATE TABLE TB_EDITOR_IMAGE (
     IMAGE_ID NUMBER PRIMARY KEY,
     FILE_NAME VARCHAR2(255),
     CONTENT_TYPE VARCHAR2(100),
     FILE_SIZE NUMBER,
     FILE_DATA BLOB,
     REG_DT DATE DEFAULT SYSDATE
-    );
-*/
+);
+-->
     <insert id="insertBoard" parameterType="edms.com.toastEditor.service.EdmsToastEditorBoardVO">
         /*edms.com.toastEditor.service.impl.EdmsToastEditorMapper.insertBoard*/
         <selectKey keyProperty="boardId" resultType="long" order="BEFORE">
