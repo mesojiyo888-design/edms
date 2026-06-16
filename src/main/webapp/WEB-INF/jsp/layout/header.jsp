@@ -26,12 +26,8 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor.min.css" />
 <!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-all.js"></script> -->
 <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-all.min.js"></script>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.css" />
+<!--<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.css" /> -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.min.css" />
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.css" /> -->
-<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.js"></script> -->
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.min.css" /> -->
-<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-viewer.min.js"></script> -->
 
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jstree/jstree.min-3.3.17.css" />
