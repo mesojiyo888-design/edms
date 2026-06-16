@@ -1,4 +1,4 @@
-var GridManager = (function() {
+var ToastGrid = (function() {
     var instances = {};
 
     return {
@@ -26,7 +26,7 @@ var GridManager = (function() {
                 grid.on('scrollEnd', function() {
                     var item = instances[gridId];
                     item.currentPage++;
-                    GridManager.search(gridId, item.currentPage, true);
+                    ToastGrid.search(gridId, item.currentPage, true);
                 });
             }
 
@@ -56,7 +56,7 @@ var GridManager = (function() {
                         // ✅ 무한스크롤 모드: 페이징 영역 숨김/비움
                         $('.grid-pagination[data-grid="' + gridId + '"]').empty();
                     } else if (res.paginationInfo) {
-                        GridManager.renderPagination(gridId, res.paginationInfo);
+                        ToastGrid.renderPagination(gridId, res.paginationInfo);
                     }
                 }
             });
@@ -109,7 +109,7 @@ var GridManager = (function() {
                 var $li = $(this).closest('li');
                 if ($li.hasClass('disabled')) return; // 비활성 클릭 무시
                 var page = $(this).data('page');
-                GridManager.search(gridId, page, false);
+                ToastGrid.search(gridId, page, false);
             });
         },
 
@@ -143,7 +143,7 @@ var GridManager = (function() {
             if (isInfinite) {
                 item.grid.on('scrollEnd', function() {
                     item.currentPage++;
-                    GridManager.search(gridId, item.currentPage, true);
+                    ToastGrid.search(gridId, item.currentPage, true);
                 });
             }
             this.search(gridId, 1, false);
@@ -154,7 +154,7 @@ var GridManager = (function() {
             if (item.timer) clearInterval(item.timer);
             if (item.options.refreshInterval) {
                 item.timer = setInterval(function() {
-                    GridManager.search(gridId, 1, false);
+                    ToastGrid.search(gridId, 1, false);
                 }, item.options.refreshInterval * 60 * 1000);
             }
         },
@@ -169,3 +169,132 @@ var GridManager = (function() {
         }
     };
 })();
+
+class JQueryDatepickerEditor {
+    constructor(props) {
+        this.el = document.createElement('div');
+        this.el.style.display = 'flex';
+        this.el.style.alignItems = 'center';
+        this.el.style.width = '100%';
+
+        this.input = document.createElement('input');
+        this.input.type = 'text';
+        this.input.value = props.value || '';
+        this.input.style.width = '100%';
+        this.input.style.boxSizing = 'border-box';
+
+        this.el.appendChild(this.input);
+
+        var customOptions = (props.columnInfo.editor.options) || {};
+        $(this.input).setDatepicker(customOptions);
+    }
+
+    getElement() {
+        return this.el;
+    }
+
+    getValue() {
+        return this.input.value;
+    }
+
+    mounted() {
+        var $input = $(this.input);
+        $input.focus();
+        $input.select();
+
+        // ✅ 그리드 내부 포커스 처리 완료 후 show
+        setTimeout(function() {
+            $input.datepicker('show');
+        }, 50);
+    }
+
+    beforeDestroy() {
+        $(this.input).datepicker('destroy');
+    }
+}
+
+function parseInitialDate(value, format) {
+    if (!value) return new Date();
+    var digits = String(value).replace(/[^0-9]/g, '');
+    if (digits.length === 8) {
+        return new Date(digits.substr(0,4), digits.substr(4,2) - 1, digits.substr(6,2));
+    }
+    return new Date();
+}
+
+class ToastDatepickerEditor {
+    constructor(props) {
+        this.el = document.createElement('span');
+        this.el.style.position = 'relative';
+        this.el.style.display = 'inline-block';
+        this.el.style.width = '100%';
+
+        this.input = document.createElement('input');
+        this.input.type = 'text';
+        this.input.value = props.value || '';
+        this.input.style.width = '100%';
+        this.input.style.boxSizing = 'border-box';
+
+        this.btn = document.createElement('button');
+        this.btn.type = 'button';
+        //this.btn.innerText = '📅';
+        var img = document.createElement('img');
+        img.src = _CONTEXT_PATH + "/images/egovframework/cmmn/calendar.png";
+        img.alt = '달력';
+        img.style.width = '16px';
+        img.style.height = '16px';
+        img.style.verticalAlign = 'middle';
+
+        this.btn.appendChild(img);
+
+        this.calendarDiv = document.createElement('div');
+
+        this.el.appendChild(this.input);
+        this.el.appendChild(this.btn);
+        this.el.appendChild(this.calendarDiv);
+
+        var format = (props.columnInfo.editor.options && props.columnInfo.editor.options.format) || 'yyyy-MM-dd';
+        var lang = (props.columnInfo.editor.options && props.columnInfo.editor.options.language) || 'ko';
+
+        this.dp = new tui.DatePicker(this.calendarDiv, {
+            date: parseInitialDate(props.value, format), // ✅ 원본 값 기준
+            input: {
+                element: this.input,
+                format: format
+            },
+            language: lang
+        });
+
+        var self = this;
+        this.btn.addEventListener('click', function() {
+            self.dp.isOpened() ? self.dp.close() : self.dp.open();
+        });
+
+        // ✅ 캘린더 z-index (그리드 안이라 더 중요)
+        this.calendarDiv.style.zIndex = 9999;
+        this.calendarDiv.style.position = 'absolute';
+    }
+
+    getElement() {
+        return this.el;
+    }
+
+    getValue() {
+        return this.input.value;
+    }
+
+    mounted() {
+        var self = this;
+        this.input.focus();
+        this.input.select();
+
+        // ✅ 그리드의 더블클릭 이벤트 처리가 끝난 후 열기
+        setTimeout(function() {
+            self.dp.open();
+        }, 50);
+    }
+
+    beforeDestroy() {
+        this.dp.destroy();
+    }
+}

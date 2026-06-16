@@ -20,6 +20,7 @@
         <li><a href="/test/vue" style="color: #007bff; text-decoration: none;" target="_blank">vue 화면 예제</a></li>
         <li><a href="/test/gridlist" style="color: #007bff; text-decoration: none;" target="_blank">그리드 리스트 예제</a></li>
         <li><a href="<c:url value='/test/commonValidator' />" style="color: #007bff; text-decoration: none;" target="_blank">JS Validator 예제</a></li>
+        <li><a href="/ai/aiChat" style="color: #007bff; text-decoration: none;" target="_blank">ai chat 예제</a></li>
         <li><a href="<c:url value='/test/toastEditor' />" style="color: #007bff; text-decoration: none;" target="_blank">TOAST Editor 예제</a></li>
     </ul>
 </div>
