@@ -36,3 +36,63 @@ ollama:
   max-memory-size: 10485760  # 10MB
   api:
     chat: /api/chat
+
+# --------------------------------------------------------------
+# LLM
+# --------------------------------------------------------------
+llm:
+  # "ollama" 또는 "vllm" 으로 전환
+  provider: ollama
+  
+  # LLM 모델
+  model: gpt-oss:20b
+
+  # 요청 타임아웃(초)
+  timeout-seconds: 120
+
+  # 최대 입력 문자 수 (보안: 과도한 토큰 소비 방지)
+  max-input-length: 4000
+
+  # 온도 (0.0 ~ 1.0)
+  # LLM이 다음 단어를 선택할 때 얼마나 다양하고 창의적으로 선택할지를 결정하는 파라미터
+  # -----------------------------------------------------------------------
+  # 후보 단어의 확률 분포를 계산
+  # 0.0 ~ 0.3   →  결정론적, 항상 비슷한 답, 사실 정보 추출에 적합
+  # 0.4 ~ 0.7   →  균형, 일관성 + 약간의 다양성  ← 대부분의 업무용 기본값
+  # 0.8 ~ 1.0   →  창의적, 매번 다른 답, 예상치 못한 표현 등장
+  # 1.0 이상    →  매우 무작위, 문법/논리 오류 가능성 증가
+  # -----------------------------------------------------------------------
+  # 코드 생성, SQL, 데이터 추출 → 정확성이 중요
+  # temperature: 0.1
+  # 일반 Q&A, 문서 요약, 번역 → 현재 설정
+  # temperature: 0.7
+  # 소설, 시, 브레인스토밍 → 창의성이 중요
+  # temperature: 1.0
+  temperature: 0.7
+
+  ollama:
+    base-url: http://localhost:11434
+    # Ollama 는 인증 없음이 기본 – 필요 시 프록시 레벨에서 처리
+    log-requests: false
+    log-responses: false
+
+  vllm:
+    # vLLM OpenAI 호환 엔드포인트
+    base-url: http://localhost:8000/v1
+    # vLLM 에 api-key 를 설정했을 경우 환경 변수로 주입
+    # 환경변수: LLM_VLLM_API_KEY=<your-key>
+    api-key: ${LLM_VLLM_API_KEY:none}
+    log-requests: false
+    log-responses: false
+
+# --------------------------------------------------------------
+# Actuator (헬스체크만 외부 노출)
+# --------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: when_authorized
