@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edms.com.toastEditor.service.impl.EdmsToastEditorMapper">
+
+    <insert id="insertBoard" parameterType="edms.com.toastEditor.service.EdmsToastEditorBoardVO">
+        /*edms.com.toastEditor.service.impl.EdmsToastEditorMapper.insertBoard*/
+        <selectKey keyProperty="boardId" resultType="long" order="BEFORE">
+            SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO TB_BOARD (
+        BOARD_ID,
+        TITLE,
+        CONTENT,
+        REG_DT
+        ) VALUES (
+        #{boardId, jdbcType=NUMERIC},
+        #{title, jdbcType=VARCHAR},
+        #{content, jdbcType=CLOB},
+        SYSDATE
+        )
+    </insert>
+
+    <insert id="insertImage" parameterType="edms.com.toastEditor.service.EdmsToastEditorImageVO">
+        /*edms.com.toastEditor.service.impl.EdmsToastEditorMapper.insertImage*/
+        <selectKey keyProperty="imageId" resultType="long" order="BEFORE">
+            SELECT SEQ_EDITOR_IMAGE.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO TB_EDITOR_IMAGE (
+        IMAGE_ID,
+        FILE_NAME,
+        CONTENT_TYPE,
+        FILE_SIZE,
+        FILE_DATA,
+        REG_DT
+        ) VALUES (
+        #{imageId},
+        #{fileName},
+        #{contentType},
+        #{fileSize},
+        #{fileData, jdbcType=BLOB},
+        SYSDATE
+        )
+    </insert>
+
+    <select id="selectImage"
+            parameterType="long"
+            resultType="edms.com.toastEditor.service.EdmsToastEditorImageVO">
+        /*edms.com.toastEditor.service.impl.EdmsToastEditorMapper.selectImage*/
+        SELECT
+        IMAGE_ID AS imageId,
+        FILE_NAME AS fileName,
+        CONTENT_TYPE AS contentType,
+        FILE_SIZE AS fileSize,
+        FILE_DATA AS fileData
+        FROM TB_EDITOR_IMAGE
+        WHERE IMAGE_ID = #{imageId}
+    </select>
+
+</mapper>
