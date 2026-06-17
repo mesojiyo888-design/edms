@@ -484,7 +484,8 @@ class ToastDatepickerEditor {
                 element: this.input,
                 format: format
             },
-            language: lang
+            language: lang,
+            usageStatistics: false
         });
 
         var self = this;
