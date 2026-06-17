@@ -67,6 +67,102 @@ var ToastGrid = (function() {
                 currentPage: 1
             };
 
+            $(document).on('mousedown.tuiFinish_' + gridId, function(e) {
+                if (!$('.tui-grid-layer-editing').length) return; // 편집 중인 셀 없으면 무시
+                if ($(e.target).closest('#' + gridId).length) return; // 그리드 내부 클릭 무시
+
+                $('.tui-grid-layer-editing').find('input, textarea, select').blur();
+                grid.finishEditing();
+            });
+
+            // 내장 select 에디터 선택 즉시 값 반영
+            grid.on('editingStart', function(ev) {
+                var col = (options.columns || []).find(function(c) {
+                    return c.name === ev.columnName;
+                });
+                if (!col || !col.editor) return;
+
+                var editorType = typeof col.editor === 'string'
+                    ? col.editor
+                    : (col.editor.type || '');
+
+                setTimeout(function() {
+                    // 편집 중인 셀 레이어 안의 요소 탐색
+                    var $layer = $('.tui-grid-layer-editing');
+                    console.log('editorType:', editorType, 'layer:', $layer);
+                    switch (editorType) {
+
+                        // select: 선택 즉시 finishEditing
+                        case 'select':
+                            $layer.find('select')
+                                .off('change.tuiInstant')
+                                .on('change.tuiInstant', function() {
+                                    grid.finishEditing(ev.rowKey, ev.columnName, $(this).val());
+                                });
+                            break;
+
+                        // radio: 선택 즉시 finishEditing
+                        case 'radio':
+                            $layer.find('input[type="radio"]')
+                                .off('change.tuiInstant')
+                                .on('change.tuiInstant', function() {
+                                    grid.finishEditing(ev.rowKey, ev.columnName, $(this).val());
+                                });
+                            break;
+
+                        // checkbox: 체크 즉시 finishEditing
+                        // TUI Grid 체크박스 에디터는 값이 배열(,구분 문자열)
+                        case 'checkbox':
+                            $layer.find('input[type="checkbox"]')
+                                .off('change.tuiInstant')
+                                .on('change.tuiInstant', function() {
+                                    var checked = [];
+                                    $layer.find('input[type="checkbox"]:checked').each(function() {
+                                        checked.push($(this).val());
+                                    });
+                                    grid.finishEditing(ev.rowKey, ev.columnName, checked.join(','));
+                                });
+                            break;
+
+                        // text: 입력 즉시 그리드 값 반영
+                        case 'text':
+                            var $input = $layer.find('input[type="text"]');
+                            $input
+                                .off('input.tuiInstant')
+                                .on('input.tuiInstant', function() {
+                                    var val = $(this).val();
+                                    // 현재 input DOM 값을 그리드에 즉시 반영
+                                    grid.finishEditing(ev.rowKey, ev.columnName, val);
+                                    // 편집모드 재진입 (커서 유지)
+                                    grid.startEditing(ev.rowKey, ev.columnName);
+                                    // 재진입 후 커서를 끝으로
+                                    setTimeout(function() {
+                                        var $newInput = $('.tui-grid-layer-editing input[type="text"]');
+                                        var len = $newInput.val().length;
+                                        $newInput[0] && $newInput[0].setSelectionRange(len, len);
+                                    }, 0);
+                                });
+                            break;
+
+                        // textarea
+                        case 'textarea':
+                            $layer.find('textarea')
+                                .off('input.tuiInstant')
+                                .on('input.tuiInstant', function() {
+                                    var val = $(this).val();
+                                    grid.finishEditing(ev.rowKey, ev.columnName, val);
+                                    grid.startEditing(ev.rowKey, ev.columnName);
+                                    setTimeout(function() {
+                                        var $ta = $('.tui-grid-layer-editing textarea');
+                                        var len = $ta.val().length;
+                                        $ta[0] && $ta[0].setSelectionRange(len, len);
+                                    }, 0);
+                                });
+                            break;
+                    }
+                }, 0);
+            });
+
             if (options.isInfinite) {
                 grid.on('scrollEnd', function() {
                     var item = instances[gridId];
@@ -238,6 +334,7 @@ var ToastGrid = (function() {
             if (item) {
                 clearInterval(item.timer);
                 item.grid.destroy();
+                $(document).off('mousedown.tuiFinish_' + gridId);
                 delete instances[gridId];
             }
         }
@@ -260,6 +357,18 @@ class JQueryDatepickerEditor {
         this.el.appendChild(this.input);
 
         var customOptions = (props.columnInfo.editor.options) || {};
+
+        // 날짜 선택 즉시 편집 종료
+        var originalOnSelect = customOptions.onSelect;
+        customOptions.onSelect = function(dateText, inst) {
+            if (originalOnSelect) originalOnSelect(dateText, inst);
+            // 선택한 값을 input에 반영 후 포커스 이동으로 finishEditing 유도
+            setTimeout(function() {
+                $(inst.input).trigger('change');
+                inst.input.blur();
+            }, 0);
+        };
+
         $(this.input).setDatepicker(customOptions);
     }
 
@@ -344,7 +453,16 @@ class ToastDatepickerEditor {
             self.dp.isOpened() ? self.dp.close() : self.dp.open();
         });
 
-        // ✅ 캘린더 z-index (그리드 안이라 더 중요)
+        // 날짜 선택 즉시 input 반영 + 편집 종료
+        this.dp.on('change', function() {
+            self.dp.close();
+            // blur로 TUI Grid의 finishEditing 트리거
+            setTimeout(function() {
+                self.input.blur();
+            }, 0);
+        });
+
+        // 캘린더 z-index (그리드 안이라 더 중요)
         this.calendarDiv.style.zIndex = 9999;
         this.calendarDiv.style.position = 'absolute';
     }
