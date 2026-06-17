@@ -38,6 +38,34 @@
  */
 
 var ToastGrid = (function() {
+    //  마스크 포맷 유틸
+    // pattern: '9' = 숫자, 'A' = 영문, '*' = 숫자+영문 , 나머지는 구분자로 처리
+    var _applyMask = function(value, pattern) {
+        if (!value) return '';
+        var str = String(value).replace(/[^a-zA-Z0-9]/g, ''); // 숫자+영문만 추출
+        var result = '';
+        var si = 0; // str 인덱스
+
+        for (var pi = 0; pi < pattern.length; pi++) {
+            if (si >= str.length) break;
+            var pc = pattern[pi];
+
+            if (pc === '9') {
+                if (/[0-9]/.test(str[si])) result += str[si++];
+                else break;
+            } else if (pc === 'A') {
+                if (/[a-zA-Z]/.test(str[si])) result += str[si++];
+                else break;
+            } else if (pc === '*') {
+                result += str[si++];
+            } else {
+                // 구분자 자동 삽입
+                result += pc;
+            }
+        }
+        return result;
+    };
+
     var instances = {};
 
     return {
@@ -204,6 +232,17 @@ var ToastGrid = (function() {
 
             var merged = currentMenu.concat(menuItems);
             item.grid.setOptions({ contextMenu: merged });
+        },
+
+        // 마스크 formatter 팩토리
+        // formatter: ToastGrid.maskFormatter('9999-99-99')        날짜
+        // formatter: ToastGrid.maskFormatter('999-9999-9999')     전화번호
+        // formatter: ToastGrid.maskFormatter('999-99-99999')      사업자번호
+        // formatter: ToastGrid.maskFormatter('AAAA-9999')         영문+숫자 혼합
+        maskFormatter: function(pattern) {
+            return function(props) {
+                return _applyMask(props.value, pattern);
+            };
         },
 
         search: function(gridId, page, isAppend) {
