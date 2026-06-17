@@ -12,6 +12,8 @@
         <org.egovframe.rte.version>4.3.0</org.egovframe.rte.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- LangChain4j 0.35.x : Java 8 지원 마지막 안정 버전 -->
+        <langchain4j.version>0.35.0</langchain4j.version>
     </properties>
 
     <repositories>
@@ -270,6 +272,20 @@
             <version>2.3.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- HWP, HWPX 관련 lib -->
         <!-- Source: https://mvnrepository.com/artifact/kr.dogfoot/hwplib -->
         <dependency>
             <groupId>kr.dogfoot</groupId>
@@ -284,18 +300,28 @@
             <version>1.0.9</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- AI langchain4j 관련 lib -->
+        <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${langchain4j.version}</version>
+            <scope>compile</scope>
         </dependency>
+        <!-- LangChain4j Ollama -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-ollama</artifactId>
+            <version>${langchain4j.version}</version>
         </dependency>
+        <!-- vLLM 은 OpenAI 호환 REST API 를 제공하므로 langchain4j-open-ai 모듈로 연동합니다. -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

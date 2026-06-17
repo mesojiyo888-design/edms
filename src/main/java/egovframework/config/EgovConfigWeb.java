@@ -23,20 +23,16 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@EnableAspectJAutoProxy
-@ComponentScan(basePackages = {"edms", "egovframework"}) // 핵심 컨트롤러와 서비스 스캔
+@ComponentScan(
+        basePackages = {"edms", "egovframework"},
+        includeFilters = @ComponentScan.Filter(
+                type = FilterType.ANNOTATION,
+                classes = org.springframework.stereotype.Controller.class
+        ),
+        useDefaultFilters = false  // Controller만 스캔
+)
 @Import({
-        EgovConfigCommon.class,
-        EgovConfigDatasource.class,
-        EgovConfigIdGeneration.class,
-        EgovConfigMapper.class,
-        EgovConfigProperties.class,
-        EgovConfigTransaction.class,
-        EgovConfigValidation.class,
-        SsoIntegratedConfig.class, // 추가
-        AccessLogFilter.class,     // 추가
-        TilesConfig.class,         // 추가
-        P6SpyConfig.class          // 추가
+        TilesConfig.class  // View 관련이므로 Servlet Context에 위치
 })
 public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware {
 
@@ -46,20 +42,12 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 		this.applicationContext = applicationContext;
 	}
 
-    @Autowired
-    private RequestMappingHandlerMapping requestMappingHandlerMapping;
-
 	@Bean
 	public InternalResourceViewResolver jspViewResolver() {
 	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
 	    
-	    // JSP 표준 태그 라이브러리(JSTL)를 사용할 수 있도록 뷰 클래스 지정
 	    viewResolver.setViewClass(JstlView.class);
-	    
-	    // 실제 경로를 WEB-INF 밑으로 지정
-	    viewResolver.setPrefix("/WEB-INF/jsp/"); // 상황에 맞게 /WEB-INF/views/ 등으로 수정 가능
-	    
-	    // 확장자를 .jsp로 지정
+	    viewResolver.setPrefix("/WEB-INF/jsp/");
 	    viewResolver.setSuffix(".jsp");
 	    
 	    return viewResolver;
@@ -100,7 +88,7 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        // 컨버터를 먼저 추가 (순서가 중요합니다!)
+        // 컨버터를 먼저 추가 (순서 중요)
         converters.add(new MappingJackson2HttpMessageConverter()); // JSON
         converters.add(new MappingJackson2XmlHttpMessageConverter()); // XML
 
