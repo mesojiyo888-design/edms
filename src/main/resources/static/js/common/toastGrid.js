@@ -1,3 +1,42 @@
+/**
+ * ToastGrid Wrapper for eGovFrame
+ * - eGovFrame의 paginationInfo 구조에 맞춰 페이징 버튼 렌더링
+ * - contextMenu 동적 설정 지원 (활성화/비활성화 및 메뉴 병합)
+ * - 무한스크롤과 일반 페이징 모드 토글 지원
+ * - 그리드별 인스턴스 관리로 다수의 그리드 동시 사용 가능
+ *
+ * 사용예시:
+ * ① 기본예제
+ * ToastGrid.init('myGrid', _CONTEXT_PATH + '/data/url', 'searchForm', {
+ *     columns: [...],
+ *     isInfinite: false,
+ *     pageOptions: { perPage: 20 },
+ *     contextMenuItems: [
+ *         [{ name: 'copy', label: '복사', action: fn }],
+ *         [{ name: 'delete', label: '삭제', action: fn }]
+ *     ],
+ *     refreshInterval: 5 // 5분마다 자동 새로고침
+ * });
+ * ② init 시부터 메뉴 지정
+ * ToastGrid.init('myGrid', '/api/list', 'searchForm', {
+ *     contextMenuItems: [
+ *         [{ name: 'copy',   label: '복사',   action: function(ev) { ... } }],
+ *         [{ name: 'delete', label: '삭제',   action: function(ev) { ... } }]
+ *     ],
+ *     columns: [ ... ]
+ * });
+ *
+ * ③ contextMenu 동적 설정 (권한에 따른 메뉴 활성화/비활성화 등)
+ * ToastGrid.setContextMenu('myGrid', [                 // 추가 활성화
+ *     [{ name: 'copy',   label: '복사',   action: fn }],
+ *     [{ name: 'delete', label: '삭제',   action: fn }]
+ * ]);
+ *
+ * ④ contextMenu 비활성화 (권한에 따른 메뉴 설정 제거)
+ * ToastGrid.setContextMenu('myGrid');                  // 비활성화
+ * ToastGrid.setContextMenu('myGrid', null);            // 비활성화
+ */
+
 var ToastGrid = (function() {
     var instances = {};
 
@@ -9,6 +48,12 @@ var ToastGrid = (function() {
             // 내장 페이징 완전 제거
             delete options.pageOptions;
             delete options.dataSource;
+
+            // contextMenu 기본 비활성화
+            // 활성화하려면 options.contextMenuItems 배열 전달
+            // 미전달 시 항상 null (우클릭 메뉴 없음)
+            options.contextMenu = options.contextMenuItems ? options.contextMenuItems : null;
+            delete options.contextMenuItems;
 
             options.el = el;
             options.perPage = perPage;
@@ -35,6 +80,35 @@ var ToastGrid = (function() {
 
         getData: function(gridId) { return instances[gridId].grid.getData(); },
         getSelectedData: function(gridId) { return instances[gridId].grid.getCheckedRows(); },
+
+        // contextMenu 동적 설정
+        // - menuItems 미전달 or null → 비활성화
+        // - menuItems 전달 → 기존 메뉴에 병합(append) 후 활성화
+        //
+        // 사용예시:
+        // ToastGrid.setContextMenu('myGrid');                  // 비활성화
+        // ToastGrid.setContextMenu('myGrid', null);            // 비활성화
+        // ToastGrid.setContextMenu('myGrid', [                 // 추가 활성화
+        //     [{ name: 'copy',   label: '복사',   action: fn }],
+        //     [{ name: 'delete', label: '삭제',   action: fn }]
+        // ]);
+        setContextMenu: function(gridId, menuItems) {
+            var item = instances[gridId];
+            if (!item) return;
+
+            if (!menuItems || !menuItems.length) {
+                item.grid.setOptions({ contextMenu: null });
+                return;
+            }
+
+            // 기존 메뉴가 있으면 병합, 없으면 새로 세팅
+            var currentMenu = item.grid.getOptions
+                ? (item.grid.getOptions().contextMenu || [])
+                : [];
+
+            var merged = currentMenu.concat(menuItems);
+            item.grid.setOptions({ contextMenu: merged });
+        },
 
         search: function(gridId, page, isAppend) {
             var item = instances[gridId];
