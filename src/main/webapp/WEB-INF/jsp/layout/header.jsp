@@ -12,7 +12,7 @@
 
 <script src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min-3.6.1.js"></script>
 <script src="${pageContext.request.contextPath}/js/lib/jquery/jquery-ui-1.14.2/jquery-ui.min.js"></script>
-<!--<script src="${pageContext.request.contextPath}/js/common/datepicker-utils.js"></script>-->
+<script src="${pageContext.request.contextPath}/js/common/datepicker-utils.js"></script>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-date.picker/tui-date-picker.min-4.3.3.css" />
 <script src="${pageContext.request.contextPath}/js/lib/toast/toast-date.picker/tui-date-picker.min-4.3.3.js"></script>
