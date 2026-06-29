@@ -1,9 +1,5 @@
 package egovframework.config;
 
-import java.util.List;
-
-import egovframework.filter.AccessLogFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
@@ -17,9 +13,10 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+
+import java.util.List;
 
 @Configuration
 @EnableWebMvc
@@ -32,51 +29,55 @@ import org.springframework.web.servlet.view.JstlView;
         useDefaultFilters = false  // Controller만 스캔
 )
 @Import({
-        TilesConfig.class  // View 관련이므로 Servlet Context에 위치
+        TilesConfig.class,  // View 관련이므로 Servlet Context에 위치
+        SwaggerConfig.class,
 })
 public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware {
 
-	private ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-	public void setApplicationContext(final ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+    public void setApplicationContext(final ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
-	@Bean
-	public InternalResourceViewResolver jspViewResolver() {
-	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-	    
-	    viewResolver.setViewClass(JstlView.class);
-	    viewResolver.setPrefix("/WEB-INF/jsp/");
-	    viewResolver.setSuffix(".jsp");
-	    
-	    return viewResolver;
-	}
+    @Bean
+    public InternalResourceViewResolver jspViewResolver() {
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+
+        viewResolver.setViewClass(JstlView.class);
+        viewResolver.setPrefix("/WEB-INF/jsp/");
+        viewResolver.setSuffix(".jsp");
+
+        return viewResolver;
+    }
 
 
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
         registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
-	}
+        // Swagger
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
 
-	@Bean
-	public SessionLocaleResolver localeResolver() {
+    @Bean
+    public SessionLocaleResolver localeResolver() {
         return new SessionLocaleResolver();
-	}
+    }
 
-	@Bean
-	public LocaleChangeInterceptor localeChangeInterceptor() {
-		LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
-		interceptor.setParamName("language");
-		return interceptor;
-	}
+    @Bean
+    public LocaleChangeInterceptor localeChangeInterceptor() {
+        LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
+        interceptor.setParamName("language");
+        return interceptor;
+    }
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
-	}
+    }
 
     @Bean
     public CommonsMultipartResolver multipartResolver() {
@@ -94,5 +95,6 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
 
         // 추가로 필요한 컨버터가 있다면 여기서 설정
     }
+
 
 }

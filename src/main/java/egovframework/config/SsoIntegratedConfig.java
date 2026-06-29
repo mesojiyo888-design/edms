@@ -92,7 +92,12 @@ public class SsoIntegratedConfig {
                         // 공개 URL은 Security에서 고정 허용
                         .requestMatchers(
                                 "/", "/login", "/dummy-login-process",
-                                "/error", "/denied", "/logout"
+                                "/error", "/denied", "/logout",
+                                // springdoc
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
                         ).permitAll()
                         //.requestMatchers("/admin/**").hasRole("ADMIN")
                         // 나머지는 인증 필수 — 세부 Role 판단은 FilterSecurityInterceptor가 담당

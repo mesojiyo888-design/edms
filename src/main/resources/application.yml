@@ -96,3 +96,10 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+
+
+  springdoc:
+    api-docs:
+      path: /v3/api-docs
+    swagger-ui:
+      path: /swagger-ui/index.html
