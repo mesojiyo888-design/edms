@@ -22,10 +22,16 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-ui.grid/tui-grid.min-4.21.22.css" />
 <script src="${pageContext.request.contextPath}/js/lib/toast/toast-ui.grid/tui-grid.min-4.21.22.js"></script>
 
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/sweetalert/sweetalert2.min.css">
+<script src="${pageContext.request.contextPath}/js/lib/sweetalert/sweetalert2.min.js"></script>
+
 <script src="${pageContext.request.contextPath}/js/common/fileUpload.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/pagination.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/toastGrid.js"></script>
 <script src="${pageContext.request.contextPath}/js/lib/handlebars/handlebars-4.7.7.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/comMsg.js"></script>
+
+
 
 <script>
     (function ($) {

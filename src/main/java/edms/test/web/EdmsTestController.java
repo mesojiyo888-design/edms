@@ -102,4 +102,10 @@ public class EdmsTestController {
 
         return "test/commonValidator";
     }
+
+    @GetMapping("/test/msglist")
+    public String msglist(@ModelAttribute SearchVO searchVO, Model model) throws Exception {
+
+        return "test/testMsgList";
+    }
 }
