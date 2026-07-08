@@ -4,6 +4,7 @@ import javax.validation.Valid;
 
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import edms.sample.service.EgovSampleService;
 import edms.sample.service.SampleVO;
 import lombok.RequiredArgsConstructor;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Controller
 @RequiredArgsConstructor
@@ -89,4 +93,8 @@ public class EgovSampleController {
 		return "redirect:/";
 	}
 
+    @RequestMapping(value = "/readme")
+    public String readme(Model model) throws Exception {
+        return "readme";
+    }
 }
