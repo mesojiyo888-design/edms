@@ -3,6 +3,7 @@ package egovframework;
 import egovframework.config.EgovConfigAppRoot;
 import egovframework.config.EgovConfigWeb;
 import egovframework.filter.AccessLogFilter;
+import egovframework.filter.GlobalFilterExceptionHandler;
 import egovframework.filter.XssFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -35,10 +36,11 @@ public class WebApplicationInitializer extends AbstractAnnotationConfigDispatche
 
         // 여기서 필터를 스프링 컨텍스트의 빈과 연결하여 등록합니다!
         return new Filter[] {
-                new CharacterEncodingFilter("UTF-8", true),
-                new AccessLogFilter(),
-                new XssFilter(),
-                new DelegatingFilterProxy("springSecurityFilterChain")
+                new GlobalFilterExceptionHandler(), // 전역 예외 처리 필터
+                new CharacterEncodingFilter("UTF-8", true), // 문자 인코딩 필터
+                new AccessLogFilter(),  // 접근 로그 필터
+                new XssFilter(),    // XSS 방지 필터
+                new DelegatingFilterProxy("springSecurityFilterChain")  //
         };
     }
 

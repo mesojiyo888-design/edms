@@ -6,6 +6,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -22,11 +23,17 @@ import java.util.List;
 @EnableWebMvc
 @ComponentScan(
         basePackages = {"edms", "egovframework"},
-        includeFilters = @ComponentScan.Filter(
-                type = FilterType.ANNOTATION,
-                classes = org.springframework.stereotype.Controller.class
-        ),
-        useDefaultFilters = false  // Controller만 스캔
+        includeFilters = {
+                @ComponentScan.Filter(
+                        type = FilterType.ANNOTATION,
+                        classes = org.springframework.stereotype.Controller.class
+                ),
+                @ComponentScan.Filter(
+                        type = FilterType.ANNOTATION,
+                        classes = ControllerAdvice.class   // GlobalExceptionHandler 등록용
+                )
+        },
+        useDefaultFilters = false  // Controller / ControllerAdvice만 스캔
 )
 @Import({
         TilesConfig.class,  // View 관련이므로 Servlet Context에 위치

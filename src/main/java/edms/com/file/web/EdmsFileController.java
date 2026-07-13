@@ -21,6 +21,22 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Class Name : EdmsFileController.java
+ * @Description : 
+ * @Modification Information
+ *
+ *   수정일        수정자           수정내용
+ *  -------    --------    ---------------------------
+ *  2026.07.13      snet            최초 생성
+ *
+ * @author snet 
+ * @since 2026.07.13
+ * @version 1.0
+ * @see
+ *
+ *  Copyright (C) by sysnetsystems All right reserved.
+ */
 @Controller
 public class EdmsFileController {
 
@@ -28,7 +44,7 @@ public class EdmsFileController {
     private EdmsFileService edmsFileService;
 
     @GetMapping("/file-page")
-    public String filePage() {
+    public String filePage() throws Exception {
         return "test/sampleFileUpload";
     }
 
@@ -37,15 +53,15 @@ public class EdmsFileController {
      */
     @GetMapping("/file/list")
     @ResponseBody
-    public List<EdmsFileVo> getFileList(@RequestParam(value = "fileId", required = false) String fileId) {
+    public List<EdmsFileVo> getFileList(@RequestParam(value = "fileId", required = false) String fileId) throws Exception {
         List<EdmsFileVo> list = new ArrayList<>();
+
         if (fileId != null && !fileId.trim().isEmpty() && !"null".equals(fileId)) {
-            try {
+
                 list = edmsFileService.getFileListByFileId(fileId);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
         }
+
         return list;
     }
 
@@ -55,7 +71,7 @@ public class EdmsFileController {
      */
     @PostMapping("/file/save-process")
     @ResponseBody
-    public ApiResponse<?> saveProcess(MultipartHttpServletRequest request) {
+    public ApiResponse<?> saveProcess(MultipartHttpServletRequest request) throws Exception {
         try {
 
             System.out.println("이미지 파일 ID: " + request.getParameter("imgFileId"));

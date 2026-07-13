@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import edms.com.service.EdmsExcelService;
 import edms.com.service.MyXmlDataListVO;
 import edms.com.service.MyXmlDataVO;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class EdmsExcelController {
 
     @GetMapping("/sample/excel")
     public String excelPage() {
+
         return "test/sampleExcel";
     }
 
@@ -41,7 +43,7 @@ public class EdmsExcelController {
     public void downloadExcel(HttpServletResponse response) throws Exception {
         try {
             List<Map<String, Object>> dataList = new ArrayList<>();
-            for (int i = 1; i <= 500; i++) {
+            for(int i = 1; i <= 500; i++) {
                 Map<String, Object> rowData = new HashMap<>();
                 rowData.put("id", i);
                 rowData.put("name", "홍길동" + i);
@@ -58,7 +60,7 @@ public class EdmsExcelController {
 
             edmsExcelService.createExcelDownload(response.getOutputStream(), headers, dataKeys, dataList);
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
@@ -67,7 +69,7 @@ public class EdmsExcelController {
     public void downloadXml(HttpServletResponse response) {
         try {
             List<MyXmlDataVO> dataList = new ArrayList<>();
-            for (int i = 1; i <= 500; i++) {
+            for(int i = 1; i <= 500; i++) {
                 MyXmlDataVO rowData = new MyXmlDataVO();
                 rowData.setId(i);
                 rowData.setName("홍길동");
@@ -85,24 +87,24 @@ public class EdmsExcelController {
             Marshaller marshaller = context.createMarshaller();
             marshaller.marshal(xmlList, response.getOutputStream());
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
     @RequestMapping("/sample/excel/downloadCsv")
-    public void downloadCsv(HttpServletResponse response) throws Exception {
+    public void downloadCsv(@NotNull HttpServletResponse response) throws Exception {
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"data.csv\"");
 
         // 엑셀에서 한글이 깨지지 않게 하기 위한 BOM(Byte Order Mark) 추가
-        response.getOutputStream().write(new byte[]{(byte)0xEF, (byte)0xBB, (byte)0xBF});
+        response.getOutputStream().write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
 
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream(), "UTF-8"));
         writer.println("ID,이름,이메일"); // 헤더
 
         List<MyXmlDataVO> dataList = new ArrayList<>();
-        for (int i = 1; i <= 500; i++) {
+        for(int i = 1; i <= 500; i++) {
             MyXmlDataVO rowData = new MyXmlDataVO();
             rowData.setId(i);
             rowData.setName("홍길동");
@@ -122,16 +124,16 @@ public class EdmsExcelController {
     public List<Map<String, String>> uploadExcel(@RequestParam("file") MultipartFile file, @RequestParam(value = "brdContent", required = false) String brdContent) {
         List<Map<String, String>> resultList = new ArrayList<>();
 
-        if (file.isEmpty()) {
+        if(file.isEmpty()) {
             return resultList;
         }
         log.debug("업로드된 파일명: {}, 크기: {} bytes, brdContent: {}", file.getOriginalFilename(), file.getSize(), brdContent);
-        try (InputStream is = file.getInputStream()) {
+        try(InputStream is = file.getInputStream()) {
             resultList = edmsExcelService.readExcelUpload(is);
 
             log.debug("엑셀에서 읽은 데이터 수: {}", resultList.size());
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
 

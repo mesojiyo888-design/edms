@@ -32,7 +32,8 @@ public class EgovSecurityMetadataSource implements FilterInvocationSecurityMetad
             newMap.put(matcher, Collections.singletonList(new SecurityConfig(vo.getRoleCd())));
         });
          */
-
+        
+        //임시로 롤권한 부여
         newMap.put(new AntPathRequestMatcher("/admin/**"),
                 Collections.singletonList(new SecurityConfig("ROLE_ADMIN")));
         newMap.put(new AntPathRequestMatcher("/doc/**"),

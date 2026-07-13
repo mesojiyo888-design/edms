@@ -1,6 +1,8 @@
 package egovframework.config;
 
 import egovframework.security.EgovSecurityMetadataSource;
+import egovframework.security.SsoAccessDeniedHandler;
+import egovframework.security.SsoAuthenticationEntryPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +106,8 @@ public class SsoIntegratedConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling()
-                .authenticationEntryPoint(customRedirectEntryPoint())
+                    .authenticationEntryPoint(new SsoAuthenticationEntryPoint())
+                    .accessDeniedHandler(new SsoAccessDeniedHandler())
                 .and()
                 .addFilterBefore(ssoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 // DB 기반 동적 권한 인터셉터 등록
@@ -115,14 +118,7 @@ public class SsoIntegratedConfig {
     }
 
     // ==========================================
-    // [4] 비로그인 차단 핸들러
-    // ==========================================
-    private AuthenticationEntryPoint customRedirectEntryPoint() {
-        return (request, response, authException) -> response.sendRedirect("/denied");
-    }
-
-    // ==========================================
-    // [5] SSO 헤더 감지 필터
+    // [4] SSO 헤더 감지 필터
     // ==========================================
     public static class SsoAuthenticationFilter extends OncePerRequestFilter {
         @Override
@@ -148,7 +144,7 @@ public class SsoIntegratedConfig {
     }
 
     // ==========================================
-    // [6] 개발용 컨트롤러
+    // [5] 개발용 컨트롤러
     // ==========================================
     @Controller
     public static class DummyLoginController {
@@ -160,11 +156,6 @@ public class SsoIntegratedConfig {
         @GetMapping({"/", "/login"})
         public String dummyLoginPage() {
             return "login/loginSso";
-        }
-
-        @GetMapping("/denied")
-        public String accessDeniedPage() {
-            return "error/error403";
         }
 
         @PostMapping("/dummy-login-process")
@@ -203,7 +194,7 @@ public class SsoIntegratedConfig {
             return "redirect:/login";
         }
 
-        // ⭐️ 관리자가 권한 변경 후 재로드 호출
+        // 관리자가 권한 변경 후 재로드 호출
         @PostMapping("/admin/role/reload")
         @ResponseBody
         public String reloadRoles() {

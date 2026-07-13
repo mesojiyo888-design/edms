@@ -7,10 +7,16 @@ import org.springframework.context.annotation.*;
 @EnableAspectJAutoProxy
 @ComponentScan(
         basePackages = {"edms", "egovframework"},
-        excludeFilters = @ComponentScan.Filter(
-                type = FilterType.ANNOTATION,
-                classes = org.springframework.stereotype.Controller.class
-        )
+        excludeFilters = {
+                @ComponentScan.Filter(
+                        type = FilterType.ANNOTATION,
+                        classes = org.springframework.stereotype.Controller.class
+                ),
+                @ComponentScan.Filter(
+                        type = FilterType.ANNOTATION,
+                        classes = org.springframework.web.bind.annotation.ControllerAdvice.class
+                )
+        }
 )
 @Import({
         EgovConfigCommon.class,      // 공통 빈
@@ -22,8 +28,7 @@ import org.springframework.context.annotation.*;
         EgovConfigValidation.class,  // 검증
         SsoIntegratedConfig.class,   // SSO 통합 설정
         AccessLogFilter.class,       // AOP 설정(접근 로그)
-        P6SpyConfig.class,           // P6Spy 설정(SQL 로깅)
-        SwaggerConfig.class          // Swagger 설정
+        P6SpyConfig.class           // P6Spy 설정(SQL 로깅)
 })
 public class EgovConfigAppRoot {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EgovConfigAppRoot.class);
