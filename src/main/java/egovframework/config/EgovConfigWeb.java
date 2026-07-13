@@ -31,6 +31,7 @@ import java.util.List;
 @Import({
         TilesConfig.class,  // View 관련이므로 Servlet Context에 위치
         SwaggerConfig.class,
+        AlarmEventConfig.class
 })
 public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware {
 

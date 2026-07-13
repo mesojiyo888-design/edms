@@ -2,8 +2,15 @@ package edms.sample.web;
 
 import javax.validation.Valid;
 
+import edms.com.service.CommonAlarmEventService;
+import edms.com.service.CommonJobConfigService;
+import edms.com.vo.CommonAlarmEventVo;
+import edms.sample.service.impl.EgovSampleServiceImpl;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.egovframe.rte.psl.dataaccess.util.EgovMap;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,16 +23,24 @@ import lombok.RequiredArgsConstructor;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class EgovSampleController {
+
+    private static final Logger log = LoggerFactory.getLogger(EgovSampleController.class);
 
 	/** EgovSampleService */
 	private final EgovSampleService sampleService;
 
 	/** EgovPropertyService */
 	private final EgovPropertyService propertiesService;
+
+    /** CommonJobConfigService */
+    private final CommonJobConfigService commonJobConfigService;
+
+    private final CommonAlarmEventService commonAlarmEventService;
 
 	/*
 	 * @GetMapping("/") public String search(@ModelAttribute SampleVO sampleVO,
@@ -95,6 +110,19 @@ public class EgovSampleController {
 
     @RequestMapping(value = "/readme")
     public String readme(Model model) throws Exception {
+
+        CommonAlarmEventVo vo1 = new CommonAlarmEventVo("0001", "ALARM", "1번 메시지");
+        commonAlarmEventService.sendAlarm(vo1);
+
+        CommonAlarmEventVo vo2 = new CommonAlarmEventVo("0002", "DOCUMENT", "2번 메시지");
+        commonAlarmEventService.sendAlarm(vo2);
+
+        List<EgovMap> jobConfig = commonJobConfigService.getJobConfig();
+
+        for (EgovMap info : jobConfig) {
+            log.debug("@@@ jobConfig:  {}", info);
+        }
+
         return "readme";
     }
 }
