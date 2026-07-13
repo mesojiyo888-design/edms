@@ -6,6 +6,10 @@
 
 <script>
     var _CONTEXT_PATH = "${pageContext.request.contextPath}" || "";
+
+    window.csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    window.csrfHeaderName = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+    window.csrfParameterName = "_csrf";
 </script>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jquery-ui-1.14.2/jquery-ui.css">
@@ -29,29 +33,24 @@
 <script src="${pageContext.request.contextPath}/js/common/pagination.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/toastGrid.js"></script>
 <script src="${pageContext.request.contextPath}/js/lib/handlebars/handlebars-4.7.7.js"></script>
-<script src="${pageContext.request.contextPath}/js/common/comMsg.js"></script>
-
-
+<script src="${pageContext.request.contextPath}/js/common/commonMsg.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/commonAjax.js"></script>
 
 <script>
     (function ($) {
 
-        // window 객체에 바인딩하여 전역 변수(Global Variable)화 시킵니다.
-        window.csrfToken = $("meta[name='_csrf']").attr("content");
-        window.csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
-        window.csrfParameterName = "_csrf"; // 스프링 시큐리티 기본 파라미터명
-
         /* ========================
-         * 1. jQuery $.ajax CSRF
+         * jQuery $.ajax CSRF 토큰 자동 헤더 추가
          * ======================== */
-        $(document).ajaxSend(function (e, xhr, options) {
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
             if (window.csrfToken && window.csrfHeaderName) {
-                xhr.setRequestHeader(window.csrfHeaderName, window.csrfToken);
+                options.headers = options.headers || {};
+                options.headers[window.csrfHeaderName] = window.csrfToken;
             }
         });
 
         /* ========================
-         * 2. XMLHttpRequest CSRF
+         * XMLHttpRequest CSRF
          * ======================== */
         var originalXhrOpen = XMLHttpRequest.prototype.open;
         var originalXhrSend = XMLHttpRequest.prototype.send;
@@ -75,7 +74,7 @@
         };
 
         /* ========================
-         * 3. fetch CSRF
+         * fetch CSRF
          * ======================== */
         var originalFetch = window.fetch;
 

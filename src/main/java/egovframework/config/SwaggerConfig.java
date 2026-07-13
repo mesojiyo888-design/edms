@@ -21,9 +21,12 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .select()
                 //.apis(RequestHandlerSelectors.any())
-                .apis(Predicates.or(
-                        RequestHandlerSelectors.basePackage("edms"),
-                        RequestHandlerSelectors.basePackage("egovframework")
+                .apis(Predicates.and(
+                        Predicates.or(
+                                RequestHandlerSelectors.basePackage("edms"),
+                                RequestHandlerSelectors.basePackage("egovframework")
+                        ),
+                        RequestHandlerSelectors.withMethodAnnotation(org.springframework.web.bind.annotation.ResponseBody.class)
                 ))
                 .paths(PathSelectors.ant("/api/**"))
                 .build();
