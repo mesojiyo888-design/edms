@@ -17,37 +17,38 @@ import java.util.HashMap;
 @Configuration
 public class EgovConfigTransaction {
 
-	@Bean(name="txManager")
-	public DataSourceTransactionManager txManager(@Qualifier("dataSource") DataSource dataSource) {
-		DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
-		dataSourceTransactionManager.setDataSource(dataSource);
-		return dataSourceTransactionManager;
-	}
+    @Bean(name = "txManager")
+    public DataSourceTransactionManager txManager(@Qualifier("dataSource") DataSource dataSource) {
+        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+        dataSourceTransactionManager.setDataSource(dataSource);
+        return dataSourceTransactionManager;
+    }
 
-	@Bean
-	public TransactionInterceptor txAdvice(DataSourceTransactionManager txManager) {
-		RuleBasedTransactionAttribute txAttribute = new RuleBasedTransactionAttribute();
-		txAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-		txAttribute.setRollbackRules(Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
+    @Bean
+    public TransactionInterceptor txAdvice(DataSourceTransactionManager txManager) {
+        RuleBasedTransactionAttribute txAttribute = new RuleBasedTransactionAttribute();
+        txAttribute.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        txAttribute.setRollbackRules(Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
 
-		HashMap<String, TransactionAttribute> txMethods = new HashMap<String, TransactionAttribute>();
-		txMethods.put("*", txAttribute);
+        HashMap<String, TransactionAttribute> txMethods = new HashMap<String, TransactionAttribute>();
+        txMethods.put("*", txAttribute);
 
-		NameMatchTransactionAttributeSource txAttributeSource = new NameMatchTransactionAttributeSource();
-		txAttributeSource.setNameMap(txMethods);
+        NameMatchTransactionAttributeSource txAttributeSource = new NameMatchTransactionAttributeSource();
+        txAttributeSource.setNameMap(txMethods);
 
-		TransactionInterceptor txAdvice = new TransactionInterceptor();
-		txAdvice.setTransactionAttributeSource(txAttributeSource);
-		txAdvice.setTransactionManager(txManager);
+        TransactionInterceptor txAdvice = new TransactionInterceptor();
+        txAdvice.setTransactionAttributeSource(txAttributeSource);
+        txAdvice.setTransactionManager(txManager);
 
-		return txAdvice;
-	}
+        return txAdvice;
+    }
 
-	@Bean
-	public Advisor txAdvisor(@Qualifier("txManager") DataSourceTransactionManager txManager) {
-		AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-		pointcut.setExpression("execution(* egovframework.example.sample..impl.*Impl.*(..))");
-		return new DefaultPointcutAdvisor(pointcut, txAdvice(txManager));
-	}
+    @Bean
+    public Advisor txAdvisor(@Qualifier("txManager") DataSourceTransactionManager txManager) {
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+        pointcut.setExpression("execution(* egovframework.example.sample..impl.*Impl.*(..)) "
+                                + "|| execution(* edms..impl.*Impl.*(..))");
+        return new DefaultPointcutAdvisor(pointcut, txAdvice(txManager));
+    }
 
 }
