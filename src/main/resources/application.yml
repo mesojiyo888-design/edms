@@ -103,3 +103,14 @@ management:
       path: /v3/api-docs
     swagger-ui:
       path: /swagger-ui/index.html
+
+
+# --------------------------------------------------------------
+# Kutt 단축 URL 서버 설정
+# --------------------------------------------------------------
+kutt:
+  server:
+    url: http://localhost:8085    # Kutt 서버 주소로 변경
+  api:
+    key: gwzfsuPfZF1Xcf9saUlPPOyNhLmvnbiTuVkvOe0r          # Kutt API Key로 변경
+    timeout: 5000
