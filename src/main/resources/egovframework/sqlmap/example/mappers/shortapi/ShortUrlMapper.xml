@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    단축 URL 매핑 Mapper
+    namespace: shortapi.ShortUrlMapper
+
+    대상 테이블: SHORT_URL_MAPPING
+    CREATE TABLE SHORT_URL_MAPPING (
+        SEQ          NUMBER         NOT NULL,          [PK: 시퀀스]
+        PROGRAM_ID   VARCHAR2(100)  NOT NULL,          [프로그램 ID, UNIQUE]
+        PROGRAM_URL  VARCHAR2(500)  NOT NULL,          [프로그램 원본 URL]
+        KUTT_ID      VARCHAR2(100)  NOT NULL,          [Kutt 내부 UUID]
+        SHORT_URL    VARCHAR2(200)  NOT NULL,          [완성된 단축 URL]
+        KUTT_ADDRESS VARCHAR2(100),                    [단축 주소 (address)]
+        DESCRIPTION  VARCHAR2(500),                    [설명]
+        EXPIRE_IN    VARCHAR2(100),                    [만료 기간: "7 days" 형식]
+        USE_YN       CHAR(1)  DEFAULT 'Y' NOT NULL,   [사용 여부]
+        REG_DT       DATE     DEFAULT SYSDATE,         [등록 일시]
+        MOD_DT       DATE,                             [수정 일시]
+        CONSTRAINT PK_SHORT_URL PRIMARY KEY (SEQ),
+        CONSTRAINT UQ_SHORT_URL_PROGRAM UNIQUE (PROGRAM_ID)
+    );
+    CREATE SEQUENCE SEQ_SHORT_URL START WITH 1 INCREMENT BY 1;
+-->
+
+<mapper namespace="shortapi.ShortUrlMapper">
+
+    <!-- =====================================================
+         ResultMap
+    ====================================================== -->
+    <resultMap id="shortUrlResultMap" type="java.util.HashMap">
+        <result column="SEQ"          property="seq"          />
+        <result column="PROGRAM_ID"   property="programId"    />
+        <result column="PROGRAM_URL"  property="programUrl"   />
+        <result column="KUTT_ID"      property="kuttId"       />
+        <result column="SHORT_URL"    property="shortUrl"     />
+        <result column="KUTT_ADDRESS" property="kuttAddress"  />
+        <result column="DESCRIPTION"  property="description"  />
+        <result column="EXPIRE_IN"    property="expireIn"     />
+        <result column="USE_YN"       property="useYn"        />
+        <result column="REG_DT"       property="regDt"        />
+        <result column="MOD_DT"       property="modDt"        />
+    </resultMap>
+
+    <!-- =====================================================
+         1. 단건 조회 (programId 기준)
+    ====================================================== -->
+    <select id="selectShortUrlByProgramId"
+            parameterType="String"
+            resultMap="shortUrlResultMap">
+        SELECT SEQ
+             , PROGRAM_ID
+             , PROGRAM_URL
+             , KUTT_ID
+             , SHORT_URL
+             , KUTT_ADDRESS
+             , DESCRIPTION
+             , EXPIRE_IN
+             , USE_YN
+             , TO_CHAR(REG_DT, 'YYYY-MM-DD HH24:MI:SS') AS REG_DT
+             , TO_CHAR(MOD_DT, 'YYYY-MM-DD HH24:MI:SS') AS MOD_DT
+          FROM SHORT_URL_MAPPING
+         WHERE PROGRAM_ID = #{programId}
+           AND USE_YN = 'Y'
+    </select>
+
+    <!-- =====================================================
+         2. 목록 조회 (조건 필터)
+    ====================================================== -->
+    <select id="selectShortUrlList"
+            parameterType="java.util.Map"
+            resultMap="shortUrlResultMap">
+        SELECT SEQ
+             , PROGRAM_ID
+             , PROGRAM_URL
+             , KUTT_ID
+             , SHORT_URL
+             , KUTT_ADDRESS
+             , DESCRIPTION
+             , EXPIRE_IN
+             , USE_YN
+             , TO_CHAR(REG_DT, 'YYYY-MM-DD HH24:MI:SS') AS REG_DT
+             , TO_CHAR(MOD_DT, 'YYYY-MM-DD HH24:MI:SS') AS MOD_DT
+          FROM SHORT_URL_MAPPING
+         <where>
+            <if test="programId != null and programId != ''">
+                AND PROGRAM_ID = #{programId}
+            </if>
+            <if test="useYn != null and useYn != ''">
+                AND USE_YN = #{useYn}
+            </if>
+         </where>
+         ORDER BY REG_DT DESC
+    </select>
+
+    <!-- =====================================================
+         3. 등록
+    ====================================================== -->
+    <insert id="insertShortUrl" parameterType="java.util.Map">
+        INSERT INTO SHORT_URL_MAPPING (
+            SEQ
+          , PROGRAM_ID
+          , PROGRAM_URL
+          , KUTT_ID
+          , SHORT_URL
+          , KUTT_ADDRESS
+          , DESCRIPTION
+          , EXPIRE_IN
+          , USE_YN
+          , REG_DT
+        ) VALUES (
+            SEQ_SHORT_URL.NEXTVAL
+          , #{programId}
+          , #{programUrl}
+          , #{kuttId}
+          , #{shortUrl}
+          , #{kuttAddress}
+          , #{description}
+          , #{expireIn}
+          , 'Y'
+          , SYSDATE
+        )
+    </insert>
+
+    <!-- =====================================================
+         4. 수정 (programId 기준, null 필드 제외)
+    ====================================================== -->
+    <update id="updateShortUrl" parameterType="java.util.Map">
+        UPDATE SHORT_URL_MAPPING
+        <set>
+            MOD_DT = SYSDATE,
+            <if test="programUrl != null and programUrl != ''">
+                PROGRAM_URL = #{programUrl},
+            </if>
+            <if test="description != null">
+                DESCRIPTION = #{description},
+            </if>
+            <if test="expireIn != null">
+                EXPIRE_IN = #{expireIn},
+            </if>
+        </set>
+         WHERE PROGRAM_ID = #{programId}
+    </update>
+
+    <!-- =====================================================
+         5. 논리 삭제 (USE_YN = 'N')
+    ====================================================== -->
+    <update id="deleteShortUrl" parameterType="String">
+        UPDATE SHORT_URL_MAPPING
+           SET USE_YN = 'N'
+             , MOD_DT = SYSDATE
+         WHERE PROGRAM_ID = #{programId}
+    </update>
+
+</mapper>
