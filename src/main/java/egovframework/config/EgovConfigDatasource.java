@@ -1,5 +1,6 @@
 package egovframework.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
+@Slf4j
 @Configuration
 public class EgovConfigDatasource {
 
@@ -26,8 +28,10 @@ public class EgovConfigDatasource {
 
     @Bean(name="dataSource")
     public DataSource dataSource() {
+        log.debug("@@@@@@@@@@driver: " + driver);
+        log.debug("@@@@@@@@@@username: " + username);
+        log.debug("@@@@@@@@@@password: " + password);
         // 프로필 읽기
-
         if (!"oper".equals(profile)) {
             BasicDataSource ds = new BasicDataSource();
             ds.setDriverClassName(driver);
