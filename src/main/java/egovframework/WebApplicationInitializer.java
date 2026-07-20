@@ -38,7 +38,8 @@ public class WebApplicationInitializer extends AbstractAnnotationConfigDispatche
         return new Filter[] {
                 new GlobalFilterExceptionHandler(), // 전역 예외 처리 필터
                 new CharacterEncodingFilter("UTF-8", true), // 문자 인코딩 필터
-                new AccessLogFilter(),  // 접근 로그 필터
+
+                //new AccessLogFilter(),  // 접근 로그 필터 // TODO: AccessLogFilter는 AOP(ControllerLogAspect)로 대체되어 주석 처리
                 new XssFilter(),    // XSS 방지 필터
                 new DelegatingFilterProxy("springSecurityFilterChain")  //
         };

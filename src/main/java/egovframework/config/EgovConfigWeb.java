@@ -22,6 +22,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebMvc
+@EnableAspectJAutoProxy
 @ComponentScan(
         basePackages = {"edms", "egovframework"},
         includeFilters = {
