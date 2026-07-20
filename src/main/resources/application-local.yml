@@ -10,7 +10,7 @@ spring:
       driver-class-name: org.postgresql.Driver
       url: jdbc:postgresql://localhost:5432/dev_db
       username: dev_user
-      password: dev_password
+      password: 1111
 
 p6spy:
   config:

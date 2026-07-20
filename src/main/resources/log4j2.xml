@@ -38,7 +38,7 @@
             <AppenderRef ref="console" />
         </Logger>
 
-        <Root level="INFO">
+        <Root level="debug">
             <AppenderRef ref="console" />
         </Root>
     </Loggers>

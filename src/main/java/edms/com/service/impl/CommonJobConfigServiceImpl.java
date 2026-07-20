@@ -20,7 +20,7 @@ public class CommonJobConfigServiceImpl implements CommonJobConfigService {
      * 1. 캐싱 처리된 jobConfig 공통코드 조회
      * 'jobConfig' 캐시에 'jobId'를 Key로 저장합니다.
      */
-    @Cacheable(value = "jobConfig", key = "#jobId")
+    @Cacheable(value = "jobConfig")
     @Override
     public List<EgovMap> getJobConfig() {
         log.debug("@@@ CommonJobConfigServiceImpl.getJobConfig : ");
@@ -32,7 +32,7 @@ public class CommonJobConfigServiceImpl implements CommonJobConfigService {
      * 2. 값이 변경되었을 때 캐시를 즉시 비우는 메서드 (수정/삭제 시 호출)
      * 해당 jobId의 캐시만 제거하여 다음 조회 시 DB에서 갱신되도록 합니다.
      */
-    @CacheEvict(value = "jobConfig", key = "#jobId")
+    @CacheEvict(value = "jobConfig")
     @Override
     public List<EgovMap> updateJobConfig() {
         log.debug("@@@ CommonJobConfigServiceImpl.updateJobConfig : ");

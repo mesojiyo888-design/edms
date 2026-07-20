@@ -1,5 +1,6 @@
 package egovframework.config;
 
+import egovframework.security.LoginUserInterceptor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
@@ -86,6 +87,10 @@ public class EgovConfigWeb implements WebMvcConfigurer, ApplicationContextAware 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
+
+        registry.addInterceptor(new LoginUserInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("/login", "/dummy-login-process", "/logout", "/error", "/denied", "/sso/callback");
     }
 
     @Bean

@@ -1,8 +1,10 @@
 package egovframework.config;
 
 import egovframework.security.EgovSecurityMetadataSource;
+import egovframework.security.EgovUserDetails;
 import egovframework.security.SsoAccessDeniedHandler;
 import egovframework.security.SsoAuthenticationEntryPoint;
+import egovframework.security.service.impl.RolePermissionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,8 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -52,8 +56,10 @@ public class SsoIntegratedConfig {
     // ==========================================
     @Bean
     public AccessDecisionManager accessDecisionManager() {
+        RoleVoter roleVoter = new RoleVoter();
+        roleVoter.setRolePrefix(""); // 이 줄이 있어야 PERM_SEND, PERM_APPROVAL도 인식
         return new AffirmativeBased(
-                Arrays.asList(new RoleVoter(), new AuthenticatedVoter())
+                Arrays.asList(roleVoter, new AuthenticatedVoter())
         );
     }
 
@@ -121,21 +127,29 @@ public class SsoIntegratedConfig {
     // [4] SSO 헤더 감지 필터
     // ==========================================
     public static class SsoAuthenticationFilter extends OncePerRequestFilter {
+
+        @Autowired
+        private RolePermissionMapper rolePermissionMapper;
+
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                        FilterChain filterChain) throws ServletException, IOException {
+                FilterChain filterChain) throws ServletException, IOException{
 
-            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            if(SecurityContextHolder.getContext().getAuthentication() != null){
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String ssoUserId = request.getHeader("X-SSO-USER-ID");
-            if (ssoUserId != null && !ssoUserId.trim().isEmpty()) {
+            if(ssoUserId != null && !ssoUserId.trim().isEmpty()){
+
+                List<Map<String, String>> permissionList = rolePermissionMapper.selectPermissionListByUserId(ssoUserId);
+
+                EgovUserDetails userDetails = new EgovUserDetails(ssoUserId);
+                userDetails.applyPermissions(permissionList);
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                ssoUserId, null, Collections.emptyList()
-                        );
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
@@ -153,6 +167,9 @@ public class SsoIntegratedConfig {
         @Autowired
         private EgovSecurityMetadataSource egovSecurityMetadataSource;
 
+        @Autowired
+        private RolePermissionMapper rolePermissionMapper;
+
         @GetMapping({"/", "/login"})
         public String dummyLoginPage() {
             return "login/loginSso";
@@ -162,6 +179,7 @@ public class SsoIntegratedConfig {
         public String dummyLoginProcess(@RequestParam("userId") String userId,
                                         HttpServletRequest request) {
             if (userId != null && !userId.trim().isEmpty()) {
+                /*
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userId, null, Collections.emptyList()
@@ -169,6 +187,20 @@ public class SsoIntegratedConfig {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 HttpSession session = request.getSession(true);
                 session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+                    */
+
+                List<Map<String, String>> permissionList = rolePermissionMapper.selectPermissionListByUserId(userId);
+
+                EgovUserDetails userDetails = new EgovUserDetails(userId);
+                userDetails.applyPermissions(permissionList);
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                HttpSession session = request.getSession(true);
+                session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
                 return "redirect:/main";
             }
             return "redirect:/login?error";

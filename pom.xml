@@ -342,6 +342,13 @@
             <artifactId>guava</artifactId>
             <version>20.0</version>
         </dependency>
+
+        <!-- [추가] PostgreSQL JDBC Driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
     </dependencies>
 
     <build>

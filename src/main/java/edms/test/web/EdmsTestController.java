@@ -2,7 +2,10 @@ package edms.test.web;
 
 import edms.com.search.service.SearchVO;
 import edms.sample.service.SampleVO;
+import egovframework.exception.EdmsException;
+import egovframework.security.EgovUserDetails;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -107,5 +110,19 @@ public class EdmsTestController {
     public String msglist(@ModelAttribute SearchVO searchVO, Model model) throws Exception {
 
         return "test/testMsgList";
+    }
+
+    @GetMapping("/test/authlist")
+    public String authlist(@ModelAttribute SearchVO searchVO, Model model) throws Exception {
+        EgovUserDetails loginUser = EgovUserDetails.getCurrentUser();
+
+        if(loginUser != null && loginUser.hasAuthList("A", "PERM_APPROVAL")){
+            // A역할로 결재 가능
+        }
+
+        if(loginUser != null && !loginUser.isApprovalYn()){
+            throw new EdmsException("결재 권한이 없습니다.", "ERR_404", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        return "test/testAuthList";
     }
 }

@@ -53,61 +53,35 @@
 
 <body style="text-align:center; margin:0 auto; display:inline; padding-top:100px;">
 <form name="form1" id="form1" action="${pageContext.request.contextPath}/board/insert" method="POST" onsubmit="return false;">
+    <ul>
 
-    <button id="btn-alert" onsubmit="return false;">alert</button>
-    <button id="btn-confirm" onsubmit="return false;">confirm</button>
-    <button id="btn-success" onsubmit="return false;">success</button>
-    <button id="btn-error" onsubmit="return false;">error</button>
-    <button id="btn-toast" onsubmit="return false;">toast</button>
-
-
-    권한: <sec:authentication property="principal.authorities" />
-    결재 권한 여부: <sec:authentication property="principal.approvalYn" />
-    발송 권한 여부: <sec:authentication property="principal.sendYn" />
-    문서 권한 여부: <sec:authentication property="principal.docYn" />
-    조회 권한 여부: <sec:authentication property="principal.selectYn" />
-
-    authList:<sec:authentication property="principal.authList" />
+    <li>권한: <sec:authentication property="principal.authorities" /></li>
+    <li>결재 권한 여부: <sec:authentication property="principal.approvalYn" /></li>
+    <li>발송 권한 여부: <sec:authentication property="principal.sendYn" /></li>
+    <li>문서 권한 여부: <sec:authentication property="principal.docYn" /></li>
+    <li>조회 권한 여부: <sec:authentication property="principal.selectYn" /></li>
+    <li>authList: <sec:authentication property="principal.authList" /></li>
 
     <%-- 전체 병합 권한 체크 (역할 무관) --%>
     <c:if test="${loginUser.sendYn}">
-        <button onclick="sendDoc()">발신</button>
+        <li><button onclick="sendDoc()">발신</button></li>
     </c:if>
 
     <%-- 특정 role 권한 체크 --%>
     <c:if test="${loginUser.hasAuthList('A', 'PERM_SEND')}">
-        <button onclick="sendAsA()">A역할로 발신</button>
+        <li><button onclick="sendAsA()">A역할로 발신</button></li>
     </c:if>
 
     <%-- Spring Security 표준 hasAuthority --%>
     <sec:authorize access="hasAuthority('PERM_SEND')">
-        <button>발신 (통합 권한 체크)</button>
+       <li> <button>발신 (통합 권한 체크)</button></li>
     </sec:authorize>
+    </ul>
 </form>
 <script>
 
     $(document).ready(function() {
-        // 버튼 동작들
-        $('#btn-alert').click(function() {
-            event.preventDefault();
-            ComMsg.alert('저장되었습니다.');
-        });
-        $('#btn-confirm').click(function() {
-            event.preventDefault();
-            ComMsg.confirm('삭제하시겠습니까?', '삭제');
-        });
-        $('#btn-success').click(function() {
-            event.preventDefault();
-            ComMsg.success('승인 완료.');
-        });
-        $('#btn-error').click(function() {
-            event.preventDefault();
-            ComMsg.error('오류 발생.');
-        });
-        $('#btn-toast').click(function() {
-            event.preventDefault();
-            ComMsg.toast('저장되었습니다.');
-        })
+
     });
 </script>
 </body>
