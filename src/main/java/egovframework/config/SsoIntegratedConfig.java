@@ -91,6 +91,7 @@ public class SsoIntegratedConfig {
                         new AntPathRequestMatcher("/logout"),
                         new AntPathRequestMatcher("/dummy-login-process"),
                         new AntPathRequestMatcher("/api/**"),
+                        new AntPathRequestMatcher("/batch/api/**"),
                         new AntPathRequestMatcher("/sso/callback")
                 )
                 .and()

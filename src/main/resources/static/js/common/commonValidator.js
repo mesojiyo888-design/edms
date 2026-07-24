@@ -48,6 +48,8 @@ const CommonValidatorManager = {
 const RULES = {
   text: (value, opts) => {
     if (opts.required && CommonValidatorManager.isEmpty(value)) return '필수 입력 항목입니다.';
+    // required가 아니고 값도 비어있으면 길이 체크를 건너뛴다 (선택 입력 필드가 비어있는 건 정상)
+    if (CommonValidatorManager.isEmpty(value)) return null;
     if (!CommonValidatorManager.isLength(value, opts)) {
       return `${opts.min ?? 0}~${opts.max ?? '무제한'}자 사이로 입력하세요.`;
     }
@@ -71,6 +73,38 @@ const RULES = {
   tel: (value, opts) => {
     if (opts.required && CommonValidatorManager.isEmpty(value)) return '필수 입력 항목입니다.';
     if (!CommonValidatorManager.isEmpty(value) && !CommonValidatorManager.isPhone(value)) return '전화번호 형식이 올바르지 않습니다.';
+    return null;
+  },
+
+  // 영문/숫자만 허용 (예: Job명 등 식별자 성격의 입력값)
+  alphanumeric: (value, opts) => {
+    if (opts.required && CommonValidatorManager.isEmpty(value)) return '필수 입력 항목입니다.';
+    if (!CommonValidatorManager.isEmpty(value)) {
+      if (!CommonValidatorManager.isAlphaNumeric(value)) return '영문/숫자만 입력 가능합니다.';
+      if (!CommonValidatorManager.isLength(value, opts)) {
+        return `${opts.min ?? 0}~${opts.max ?? '무제한'}자 사이로 입력하세요.`;
+      }
+    }
+    return null;
+  },
+
+  // Spring 스타일 6필드 크론 표현식(초 분 시 일 월 요일) 형식 검증.
+  // 정확한 의미 검증(예: 31월 같은 논리 오류)까지는 클라이언트에서 하지 않고,
+  // 필드 개수 + 허용 문자 형식만 1차로 걸러낸다. 최종 정확한 검증은 서버(Spring CronExpression)에서 수행.
+  cron: (value, opts) => {
+    if (opts.required && CommonValidatorManager.isEmpty(value)) return '필수 입력 항목입니다.';
+    if (CommonValidatorManager.isEmpty(value)) return null;
+
+    const trimmed = String(value).trim();
+    const fields = trimmed.split(/\s+/);
+    if (fields.length !== 6) {
+      return '초 분 시 일 월 요일 6개 필드로 입력하세요. (예: 0 0 3 * * *)';
+    }
+    const fieldPattern = /^[0-9A-Za-z*\/\-,?LW#]+$/;
+    const isValidField = fields.every((f) => fieldPattern.test(f));
+    if (!isValidField) {
+      return '크론 표현식에 허용되지 않는 문자가 포함되어 있습니다.';
+    }
     return null;
   }
 };

@@ -24,6 +24,7 @@
         <li><a href="<c:url value='/llm/chat' />" style="color: #007bff; text-decoration: none;" target="_blank">LLM 예제</a></li>
         <li><a href="/test/msglist" style="color: #007bff; text-decoration: none;" target="_blank">메시지 예제</a></li>
         <li><a href="/test/authlist" style="color: #007bff; text-decoration: none;" target="_blank"><권한></권한> 예제</a></li>
+        <li><a href="/batch/list" style="color: #007bff; text-decoration: none;" target="_blank">배치 관리</a></li>
     </ul>
 </div>
 </body>
