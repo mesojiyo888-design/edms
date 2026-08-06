@@ -1,6 +1,10 @@
 package egovframework.config;
 
 import egovframework.security.EgovSecurityMetadataSource;
+import egovframework.security.EgovUserDetails;
+import egovframework.security.SsoAccessDeniedHandler;
+import egovframework.security.SsoAuthenticationEntryPoint;
+import egovframework.security.service.impl.RolePermissionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,7 +26,15 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -35,7 +46,8 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -50,8 +62,10 @@ public class SsoIntegratedConfig {
     // ==========================================
     @Bean
     public AccessDecisionManager accessDecisionManager() {
+        RoleVoter roleVoter = new RoleVoter();
+        roleVoter.setRolePrefix(""); // 이 줄이 있어야 PERM_SEND, PERM_APPROVAL도 인식
         return new AffirmativeBased(
-                Arrays.asList(new RoleVoter(), new AuthenticatedVoter())
+                Arrays.asList(roleVoter, new AuthenticatedVoter())
         );
     }
 
@@ -83,7 +97,9 @@ public class SsoIntegratedConfig {
                         new AntPathRequestMatcher("/logout"),
                         new AntPathRequestMatcher("/dummy-login-process"),
                         new AntPathRequestMatcher("/api/**"),
-                        new AntPathRequestMatcher("/sso/callback")
+                        new AntPathRequestMatcher("/sso/callback"),
+                        new AntPathRequestMatcher("/raonkHandler.do")
+
                 )
                 .and()
                 .headers().frameOptions().disable()
@@ -92,14 +108,20 @@ public class SsoIntegratedConfig {
                         // 공개 URL은 Security에서 고정 허용
                         .requestMatchers(
                                 "/", "/login", "/dummy-login-process",
-                                "/error", "/denied", "/logout"
+                                "/error", "/denied", "/logout",
+                                // springdoc
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
                         ).permitAll()
                         //.requestMatchers("/admin/**").hasRole("ADMIN")
                         // 나머지는 인증 필수 — 세부 Role 판단은 FilterSecurityInterceptor가 담당
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling()
-                .authenticationEntryPoint(customRedirectEntryPoint())
+                    .authenticationEntryPoint(new SsoAuthenticationEntryPoint())
+                    .accessDeniedHandler(new SsoAccessDeniedHandler())
                 .and()
                 .addFilterBefore(ssoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 // DB 기반 동적 권한 인터셉터 등록
@@ -110,31 +132,32 @@ public class SsoIntegratedConfig {
     }
 
     // ==========================================
-    // [4] 비로그인 차단 핸들러
-    // ==========================================
-    private AuthenticationEntryPoint customRedirectEntryPoint() {
-        return (request, response, authException) -> response.sendRedirect("/denied");
-    }
-
-    // ==========================================
-    // [5] SSO 헤더 감지 필터
+    // [4] SSO 헤더 감지 필터
     // ==========================================
     public static class SsoAuthenticationFilter extends OncePerRequestFilter {
+
+        @Autowired
+        private RolePermissionMapper rolePermissionMapper;
+
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                        FilterChain filterChain) throws ServletException, IOException {
+                FilterChain filterChain) throws ServletException, IOException{
 
-            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            if(SecurityContextHolder.getContext().getAuthentication() != null){
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String ssoUserId = request.getHeader("X-SSO-USER-ID");
-            if (ssoUserId != null && !ssoUserId.trim().isEmpty()) {
+            if(ssoUserId != null && !ssoUserId.trim().isEmpty()){
+
+                List<Map<String, String>> permissionList = rolePermissionMapper.selectPermissionListByUserId(ssoUserId);
+
+                EgovUserDetails userDetails = new EgovUserDetails(ssoUserId);
+                userDetails.applyPermissions(permissionList);
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                ssoUserId, null, Collections.emptyList()
-                        );
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
@@ -143,7 +166,7 @@ public class SsoIntegratedConfig {
     }
 
     // ==========================================
-    // [6] 개발용 컨트롤러
+    // [5] 개발용 컨트롤러
     // ==========================================
     @Controller
     public static class DummyLoginController {
@@ -152,20 +175,19 @@ public class SsoIntegratedConfig {
         @Autowired
         private EgovSecurityMetadataSource egovSecurityMetadataSource;
 
+        @Autowired
+        private RolePermissionMapper rolePermissionMapper;
+
         @GetMapping({"/", "/login"})
         public String dummyLoginPage() {
             return "login/loginSso";
-        }
-
-        @GetMapping("/denied")
-        public String accessDeniedPage() {
-            return "error/error403";
         }
 
         @PostMapping("/dummy-login-process")
         public String dummyLoginProcess(@RequestParam("userId") String userId,
                                         HttpServletRequest request) {
             if (userId != null && !userId.trim().isEmpty()) {
+                /*
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userId, null, Collections.emptyList()
@@ -173,6 +195,20 @@ public class SsoIntegratedConfig {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 HttpSession session = request.getSession(true);
                 session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+                    */
+
+                List<Map<String, String>> permissionList = rolePermissionMapper.selectPermissionListByUserId(userId);
+
+                EgovUserDetails userDetails = new EgovUserDetails(userId);
+                userDetails.applyPermissions(permissionList);
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                HttpSession session = request.getSession(true);
+                session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
                 return "redirect:/main";
             }
             return "redirect:/login?error";
@@ -198,7 +234,7 @@ public class SsoIntegratedConfig {
             return "redirect:/login";
         }
 
-        // ⭐️ 관리자가 권한 변경 후 재로드 호출
+        // 관리자가 권한 변경 후 재로드 호출
         @PostMapping("/admin/role/reload")
         @ResponseBody
         public String reloadRoles() {

@@ -159,6 +159,23 @@
             console.log("전체데이터:", allData);
             console.log("체크된데이터:", checked);
         });
+
+
+        ComMsg.alert('저장되었습니다.');
+        ComMsg.confirm('상신하시겠습니까?', '상신', function() { ... });
+        ComMsg.success('승인 완료.');
+        ComMsg.error('오류 발생.');
+        // 버튼 텍스트만 변경
+        ComMsg.confirm('삭제하시겠습니까?', '삭제', function() { deleteDoc(); }, {
+          confirmButtonText: '삭제',
+          cancelButtonText: '아니오'
+        });
+
+        // 이미지 버튼 (buttonsStyling: false)
+        ComMsg.alert('저장되었습니다.', '알림', null, {
+          buttonsStyling: false,
+          customClass: { confirmButton: 'btn-custom-confirm' }
+        });
     });
 </script>
 </body>

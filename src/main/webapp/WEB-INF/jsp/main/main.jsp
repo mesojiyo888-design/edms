@@ -21,6 +21,9 @@
         <li><a href="/test/gridlist" style="color: #007bff; text-decoration: none;" target="_blank">그리드 리스트 예제</a></li>
         <li><a href="<c:url value='/test/commonValidator' />" style="color: #007bff; text-decoration: none;" target="_blank">JS Validator 예제</a></li>
         <li><a href="/ai/aiChat" style="color: #007bff; text-decoration: none;" target="_blank">ai chat 예제</a></li>
+        <li><a href="<c:url value='/llm/chat' />" style="color: #007bff; text-decoration: none;" target="_blank">LLM 예제</a></li>
+        <li><a href="/test/msglist" style="color: #007bff; text-decoration: none;" target="_blank">메시지 예제</a></li>
+        <li><a href="/test/treeList" style="color: #007bff; text-decoration: none;" target="_blank">트리 리스트 예제</a></li>
         <li><a href="<c:url value='/test/toastEditor' />" style="color: #007bff; text-decoration: none;" target="_blank">TOAST Editor 예제</a></li>
         <li><a href="<c:url value='/test/testToastTree' />" style="color: #007bff; text-decoration: none;" target="_blank">TOAST Tree 예제</a></li>
     </ul>

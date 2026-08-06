@@ -4,6 +4,8 @@ import edms.llm.dto.ChatRequest;
 import edms.llm.dto.CompleteRequest;
 import edms.llm.dto.LlmResponse;
 import edms.llm.service.LlmService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ import javax.validation.Valid;
  * application.yml의 provider 설정에 따라
  * OllamaLlmService 또는 VllmLlmService 가 바인딩됩니다.
  */
+@Api(tags = "LLM REST API")
 @RestController
 public class LlmController {
 
@@ -44,6 +47,7 @@ public class LlmController {
      * { "prompt": "Spring 이란?" }
      * </pre>
      */
+
     @PostMapping("/api/llm/complete")
     public ResponseEntity<LlmResponse> complete(@Valid @RequestBody CompleteRequest request) {
         String result = llmService.complete(request.getPrompt());
@@ -57,7 +61,8 @@ public class LlmController {
      * { "systemPrompt": "Java 전문가입니다.", "userMessage": "스트림 API 설명해줘" }
      * </pre>
      */
-    @PostMapping("/api/llm//chat")
+    @ApiOperation(value = "LLM 채팅 API", notes = "시스템 프롬프트와 사용자 메시지를 받아 LLM과 채팅을 수행합니다.")
+    @PostMapping("/api/llm/chat")
     public ResponseEntity<LlmResponse> chat(@Valid @RequestBody ChatRequest request) {
         String result = llmService.chat(request.getSystemPrompt(), request.getUserMessage());
         return ResponseEntity.ok(LlmResponse.success(result, llmService.getServiceName()));

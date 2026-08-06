@@ -31,7 +31,8 @@ var ToastDatepicker = (function() {
                         element: '#' + id,
                         format: format
                     },
-                    language: lang
+                    language: lang,
+                    usageStatistics: false
                 });
                 instances[id] = dp;
 

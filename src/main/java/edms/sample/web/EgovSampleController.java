@@ -2,8 +2,14 @@ package edms.sample.web;
 
 import javax.validation.Valid;
 
+import edms.common.service.CommonAlarmEventService;
+import edms.common.service.CommonJobConfigService;
+import edms.common.vo.CommonAlarmEventVo;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.egovframe.rte.psl.dataaccess.util.EgovMap;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,15 +19,24 @@ import edms.sample.service.EgovSampleService;
 import edms.sample.service.SampleVO;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class EgovSampleController {
+
+    private static final Logger log = LoggerFactory.getLogger(EgovSampleController.class);
 
 	/** EgovSampleService */
 	private final EgovSampleService sampleService;
 
 	/** EgovPropertyService */
 	private final EgovPropertyService propertiesService;
+
+    /** CommonJobConfigService */
+    private final CommonJobConfigService commonJobConfigService;
+
+    private final CommonAlarmEventService commonAlarmEventService;
 
 	/*
 	 * @GetMapping("/") public String search(@ModelAttribute SampleVO sampleVO,
@@ -89,4 +104,21 @@ public class EgovSampleController {
 		return "redirect:/";
 	}
 
+    @RequestMapping(value = "/readme")
+    public String readme(Model model) throws Exception {
+
+        CommonAlarmEventVo vo1 = new CommonAlarmEventVo("0001", "ALARM", "1번 메시지");
+        commonAlarmEventService.sendAlarm(vo1);
+
+        CommonAlarmEventVo vo2 = new CommonAlarmEventVo("0002", "DOCUMENT", "2번 메시지");
+        commonAlarmEventService.sendAlarm(vo2);
+
+        List<EgovMap> jobConfig = commonJobConfigService.getJobConfig();
+
+        for (EgovMap info : jobConfig) {
+            log.debug("@@@ jobConfig:  {}", info);
+        }
+
+        return "readme";
+    }
 }

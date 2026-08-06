@@ -7,10 +7,10 @@ spring:
       on-profile: dev
     datasource:
       jndi-name: java:comp/env/jdbc/myDataSource
-      driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://localhost:5432/dev_db
+      driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+      url: jdbc:p6spy:postgresql://localhost:5432/dev_db
       username: dev_user
-      password: dev_password
+      password: 1111
 
 p6spy:
   config:

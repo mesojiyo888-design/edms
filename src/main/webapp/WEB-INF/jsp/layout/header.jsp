@@ -1,18 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
 <script>
     var _CONTEXT_PATH = "${pageContext.request.contextPath}" || "";
+
+    window.csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    window.csrfHeaderName = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+    window.csrfParameterName = "_csrf";
 </script>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/jquery/jquery-ui-1.14.2/jquery-ui.css">
 
 <script src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min-3.6.1.js"></script>
 <script src="${pageContext.request.contextPath}/js/lib/jquery/jquery-ui-1.14.2/jquery-ui.min.js"></script>
-<!--<script src="${pageContext.request.contextPath}/js/common/datepicker-utils.js"></script>-->
+<script src="${pageContext.request.contextPath}/js/common/datepicker-utils.js"></script>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-date.picker/tui-date-picker.min-4.3.3.css" />
 <script src="${pageContext.request.contextPath}/js/lib/toast/toast-date.picker/tui-date-picker.min-4.3.3.js"></script>
@@ -22,56 +27,35 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-ui.grid/tui-grid.min-4.21.22.css" />
 <script src="${pageContext.request.contextPath}/js/lib/toast/toast-ui.grid/tui-grid.min-4.21.22.js"></script>
 
+<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/sweetalert/sweetalert2.min.css">
+<script src="${pageContext.request.contextPath}/js/lib/sweetalert/sweetalert2.min.js"></script>
 
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor.css" /> -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor.min.css" />
-<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-all.js"></script> -->
-<script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-all.min.js"></script>
-<!--<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.css" /> -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.min.css" />
-
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-context-menu-2.1.9.css" /> -->
-<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-context-menu-2.1.9.js" ></script> -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-context-menu.min-2.1.9.css" />
-<script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-context-menu.min-2.1.9.js" ></script>
-
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/jstree.min-3.3.17.css" /> -->
-<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/jstree.min-3.3.17.js" ></script> -->
-<!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-tree-4.0.9.css" /> -->
-<!-- <script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-tree-4.0.9.js" ></script> -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-tree.min-4.0.9.css" />
-<script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-tree.min-4.0.9.js" ></script>
-
+<script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-tree.js"></script>
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-tree.css" />
 
 <script src="${pageContext.request.contextPath}/js/common/fileUpload.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/pagination.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/toastGrid.js"></script>
 <script src="${pageContext.request.contextPath}/js/lib/handlebars/handlebars-4.7.7.js"></script>
-<script src="${pageContext.request.contextPath}/js/common/toastEditor.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/commonMsg.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/commonAjax.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/toastTree.js"></script>
-<script src="${pageContext.request.contextPath}/js/common/jsTree.js"></script>
-
-
 
 <script>
     (function ($) {
 
-        // window 객체에 바인딩하여 전역 변수(Global Variable)화 시킵니다.
-        window.csrfToken = $("meta[name='_csrf']").attr("content");
-        window.csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
-        window.csrfParameterName = "_csrf"; // 스프링 시큐리티 기본 파라미터명
-
         /* ========================
-         * 1. jQuery $.ajax CSRF
+         * jQuery $.ajax CSRF 토큰 자동 헤더 추가
          * ======================== */
-        $(document).ajaxSend(function (e, xhr, options) {
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
             if (window.csrfToken && window.csrfHeaderName) {
-                xhr.setRequestHeader(window.csrfHeaderName, window.csrfToken);
+                options.headers = options.headers || {};
+                options.headers[window.csrfHeaderName] = window.csrfToken;
             }
         });
 
         /* ========================
-         * 2. XMLHttpRequest CSRF
+         * XMLHttpRequest CSRF
          * ======================== */
         var originalXhrOpen = XMLHttpRequest.prototype.open;
         var originalXhrSend = XMLHttpRequest.prototype.send;
@@ -95,7 +79,7 @@
         };
 
         /* ========================
-         * 3. fetch CSRF
+         * fetch CSRF
          * ======================== */
         var originalFetch = window.fetch;
 
@@ -132,9 +116,11 @@
     <h1 style="margin: 0; font-size: 20px;">Portal</h1>
 
     <sec:authorize access="isAuthenticated()">
-        <span style="margin-left: 20px; color: #007bff;">접속자 [<sec:authentication property="principal" />]</span>
+        <span style="margin-left: 20px; color: #007bff;">접속자 [<sec:authentication property="principal.username" />]</span>
+
     </sec:authorize>
     <sec:authorize access="isAuthenticated()">
         <button onclick="location.href='/logout'">Logout</button>
     </sec:authorize>
+
 </div>

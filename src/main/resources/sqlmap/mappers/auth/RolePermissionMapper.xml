@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.security.service.impl.RolePermissionMapper">
+    <select id="selectPermissionListByUserId" resultType="java.util.HashMap">
+        SELECT B.ROLE_ID
+            , B.APPROVAL_YN
+            , B.DOC_YN
+            , B.SEND_YN
+            , B.SELECT_YN
+        FROM COMTN_USER_ROLE       A
+        , COMTN_ROLE_PERMISSION B
+        WHERE A.ROLE_ID   = B.ROLE_ID
+        AND A.USER_ID   = #{userId}
+    </select>
+</mapper>

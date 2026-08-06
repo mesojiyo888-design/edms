@@ -38,6 +38,34 @@
  */
 
 var ToastGrid = (function() {
+    //  마스크 포맷 유틸
+    // pattern: '9' = 숫자, 'A' = 영문, '*' = 숫자+영문 , 나머지는 구분자로 처리
+    var _applyMask = function(value, pattern) {
+        if (!value) return '';
+        var str = String(value).replace(/[^a-zA-Z0-9]/g, ''); // 숫자+영문만 추출
+        var result = '';
+        var si = 0; // str 인덱스
+
+        for (var pi = 0; pi < pattern.length; pi++) {
+            if (si >= str.length) break;
+            var pc = pattern[pi];
+
+            if (pc === '9') {
+                if (/[0-9]/.test(str[si])) result += str[si++];
+                else break;
+            } else if (pc === 'A') {
+                if (/[a-zA-Z]/.test(str[si])) result += str[si++];
+                else break;
+            } else if (pc === '*') {
+                result += str[si++];
+            } else {
+                // 구분자 자동 삽입
+                result += pc;
+            }
+        }
+        return result;
+    };
+
     var instances = {};
 
     return {
@@ -70,6 +98,7 @@ var ToastGrid = (function() {
             $(document).on('mousedown.tuiFinish_' + gridId, function(e) {
                 if (!$('.tui-grid-layer-editing').length) return; // 편집 중인 셀 없으면 무시
                 if ($(e.target).closest('#' + gridId).length) return; // 그리드 내부 클릭 무시
+                if ($(e.target).closest('.tui-datepicker').length) return; //  body에 붙은 TUI 달력 영역 클릭도 무시
 
                 $('.tui-grid-layer-editing').find('input, textarea, select').blur();
                 grid.finishEditing();
@@ -206,6 +235,17 @@ var ToastGrid = (function() {
             item.grid.setOptions({ contextMenu: merged });
         },
 
+        // 마스크 formatter 팩토리
+        // formatter: ToastGrid.maskFormatter('9999-99-99')        날짜
+        // formatter: ToastGrid.maskFormatter('999-9999-9999')     전화번호
+        // formatter: ToastGrid.maskFormatter('999-99-99999')      사업자번호
+        // formatter: ToastGrid.maskFormatter('AAAA-9999')         영문+숫자 혼합
+        maskFormatter: function(pattern) {
+            return function(props) {
+                return _applyMask(props.value, pattern);
+            };
+        },
+
         search: function(gridId, page, isAppend) {
             var item = instances[gridId];
             if (!item) return;
@@ -216,17 +256,25 @@ var ToastGrid = (function() {
                 url: item.dataUrl,
                 data: formData + '&pageIndex=' + (page || 1) + '&pageSize=' + item.options.perPage,
                 success: function(res) {
+
+                    var result = res.data.resultMap || res.data || {};
                     if (isAppend) {
-                        item.grid.appendRows(res.dataList);
+                        item.grid.appendRows(result.dataList);
                     } else {
-                        item.grid.resetData(res.dataList);
+                        item.grid.resetData(result.dataList);
                     }
 
                     if (item.options.isInfinite) {
                         // ✅ 무한스크롤 모드: 페이징 영역 숨김/비움
                         $('.grid-pagination[data-grid="' + gridId + '"]').empty();
-                    } else if (res.paginationInfo) {
-                        ToastGrid.renderPagination(gridId, res.paginationInfo);
+                    } else if (result.paginationInfo) {
+                        ToastGrid.renderPagination(gridId, result.paginationInfo);
+                    }
+
+                    // ✅ list/paginationInfo 외 부가 데이터(예: 통계, 요약, 코드값 등)를
+                    //    화면 스크립트에서 받아쓸 수 있도록 콜백으로 전달
+                    if (typeof item.options.onLoad === 'function') {
+                        item.options.onLoad(result, res);
                     }
                 }
             });
@@ -427,66 +475,70 @@ class ToastDatepickerEditor {
         img.style.width = '16px';
         img.style.height = '16px';
         img.style.verticalAlign = 'middle';
-
         this.btn.appendChild(img);
-
-        this.calendarDiv = document.createElement('div');
 
         this.el.appendChild(this.input);
         this.el.appendChild(this.btn);
-        this.el.appendChild(this.calendarDiv);
+
+        //  calendarDiv를 body에 직접 붙임 (overflow 탈출)
+        this.calendarDiv = document.createElement('div');
+        this.calendarDiv.style.cssText = 'position:fixed; z-index:99999; display:none;';
+        document.body.appendChild(this.calendarDiv);
 
         var format = (props.columnInfo.editor.options && props.columnInfo.editor.options.format) || 'yyyy-MM-dd';
-        var lang = (props.columnInfo.editor.options && props.columnInfo.editor.options.language) || 'ko';
+        var lang   = (props.columnInfo.editor.options && props.columnInfo.editor.options.language) || 'ko';
 
         this.dp = new tui.DatePicker(this.calendarDiv, {
-            date: parseInitialDate(props.value, format), // ✅ 원본 값 기준
-            input: {
-                element: this.input,
-                format: format
-            },
-            language: lang
+            date: parseInitialDate(props.value, format),
+            input: { element: this.input, format: format },
+            language: lang,
+            usageStatistics: false
         });
 
         var self = this;
+
+        //  버튼 클릭 시 위치 계산 후 open
         this.btn.addEventListener('click', function() {
-            self.dp.isOpened() ? self.dp.close() : self.dp.open();
+            if (self.dp.isOpened()) {
+                self.dp.close();
+            } else {
+                self._positionCalendar();
+                self.dp.open();
+            }
         });
 
-        // 날짜 선택 즉시 input 반영 + 편집 종료
         this.dp.on('change', function() {
             self.dp.close();
-            // blur로 TUI Grid의 finishEditing 트리거
-            setTimeout(function() {
-                self.input.blur();
-            }, 0);
+            setTimeout(function() { self.input.blur(); }, 0);
         });
-
-        // 캘린더 z-index (그리드 안이라 더 중요)
-        this.calendarDiv.style.zIndex = 9999;
-        this.calendarDiv.style.position = 'absolute';
     }
 
-    getElement() {
-        return this.el;
+    //  input 기준으로 달력 위치 계산
+    _positionCalendar() {
+        var rect = this.input.getBoundingClientRect();
+        this.calendarDiv.style.top  = rect.bottom + 'px';
+        this.calendarDiv.style.left = rect.left + 'px';
+        this.calendarDiv.style.display = '';
     }
 
-    getValue() {
-        return this.input.value;
-    }
+    getElement() { return this.el; }
+    getValue()    { return this.input.value; }
 
     mounted() {
         var self = this;
         this.input.focus();
         this.input.select();
-
-        // ✅ 그리드의 더블클릭 이벤트 처리가 끝난 후 열기
         setTimeout(function() {
+            self._positionCalendar();
             self.dp.open();
         }, 50);
     }
 
     beforeDestroy() {
         this.dp.destroy();
+        //  body에 붙인 div 반드시 제거
+        if (this.calendarDiv && this.calendarDiv.parentNode) {
+            this.calendarDiv.parentNode.removeChild(this.calendarDiv);
+        }
     }
 }
