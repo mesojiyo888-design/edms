@@ -1,6 +1,6 @@
 package egovframework.filter;
 
-import edms.com.util.HtmlEscapeUtils;
+import edms.common.util.HtmlEscapeUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;

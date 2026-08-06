@@ -2,16 +2,14 @@ package edms.sample.web;
 
 import javax.validation.Valid;
 
-import edms.com.service.CommonAlarmEventService;
-import edms.com.service.CommonJobConfigService;
-import edms.com.vo.CommonAlarmEventVo;
-import edms.sample.service.impl.EgovSampleServiceImpl;
+import edms.common.service.CommonAlarmEventService;
+import edms.common.service.CommonJobConfigService;
+import edms.common.vo.CommonAlarmEventVo;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.psl.dataaccess.util.EgovMap;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,8 +19,6 @@ import edms.sample.service.EgovSampleService;
 import edms.sample.service.SampleVO;
 import lombok.RequiredArgsConstructor;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Controller

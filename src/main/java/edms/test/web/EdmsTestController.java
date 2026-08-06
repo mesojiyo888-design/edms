@@ -1,6 +1,6 @@
 package edms.test.web;
 
-import edms.com.search.service.SearchVO;
+import edms.common.search.service.SearchVO;
 import edms.sample.service.SampleVO;
 import egovframework.exception.EdmsException;
 import egovframework.security.EgovUserDetails;
@@ -124,5 +124,11 @@ public class EdmsTestController {
             throw new EdmsException("결재 권한이 없습니다.", "ERR_404", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         return "test/testAuthList";
+    }
+
+    @GetMapping("/test/treeList")
+    public String treeList(@ModelAttribute SearchVO searchVO, Model model) throws Exception {
+
+        return "test/testTree";
     }
 }

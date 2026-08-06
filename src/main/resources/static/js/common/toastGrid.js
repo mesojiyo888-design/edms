@@ -256,17 +256,25 @@ var ToastGrid = (function() {
                 url: item.dataUrl,
                 data: formData + '&pageIndex=' + (page || 1) + '&pageSize=' + item.options.perPage,
                 success: function(res) {
+
+                    var result = res.data.resultMap || res.data || {};
                     if (isAppend) {
-                        item.grid.appendRows(res.dataList);
+                        item.grid.appendRows(result.dataList);
                     } else {
-                        item.grid.resetData(res.dataList);
+                        item.grid.resetData(result.dataList);
                     }
 
                     if (item.options.isInfinite) {
                         // ✅ 무한스크롤 모드: 페이징 영역 숨김/비움
                         $('.grid-pagination[data-grid="' + gridId + '"]').empty();
-                    } else if (res.paginationInfo) {
-                        ToastGrid.renderPagination(gridId, res.paginationInfo);
+                    } else if (result.paginationInfo) {
+                        ToastGrid.renderPagination(gridId, result.paginationInfo);
+                    }
+
+                    // ✅ list/paginationInfo 외 부가 데이터(예: 통계, 요약, 코드값 등)를
+                    //    화면 스크립트에서 받아쓸 수 있도록 콜백으로 전달
+                    if (typeof item.options.onLoad === 'function') {
+                        item.options.onLoad(result, res);
                     }
                 }
             });

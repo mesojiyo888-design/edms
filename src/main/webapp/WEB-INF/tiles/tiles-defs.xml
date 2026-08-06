@@ -6,13 +6,22 @@
 
     <!-- 공통 기본 레이아웃 정의 -->
     <definition name="default-layout" template="/WEB-INF/jsp/layout/defaultLayout.jsp">
-        <put-attribute name="header" value="/WEB-INF/jsp/layout/header.jsp" />
-        <put-attribute name="footer" value="/WEB-INF/jsp/layout/footer.jsp" />
+        <put-attribute name="header" value="/WEB-INF/jsp/layout/header.jsp" type="template" />
+        <put-attribute name="footer" value="/WEB-INF/jsp/layout/footer.jsp" type="template" />
     </definition>
 
     <!-- 기본 레이아웃 -->
     <definition name="*/*" extends="default-layout">
-        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" type="template" />
+    </definition>
+    <definition name="*/*/*" extends="default-layout">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" type="template" />
+    </definition>
+    <definition name="*/*/*/*" extends="default-layout">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" type="template" />
+    </definition>
+    <definition name="*/*/*/*/*" extends="default-layout">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" type="template" />
     </definition>
 
 </tiles-definitions>
