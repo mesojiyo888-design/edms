@@ -170,6 +170,9 @@ var flatList =
                 onDelete  : onDelete
             }
         });
+
+        ComTree.selectFirstNode('menuTree');
+
     }
 
     function onSelect(nodeId, nodeData) {

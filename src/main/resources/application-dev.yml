@@ -8,7 +8,7 @@ spring:
     datasource:
       jndi-name: java:comp/env/jdbc/myDataSource
       driver-class-name: com.p6spy.engine.spy.P6SpyDriver
-      url: jdbc:p6spy:postgresql://localhost:5432/dev_db
+      url: jdbc:p6spy:postgresql://172.16.151.114:5432/dev_db
       username: dev_user
       password: 1111
 

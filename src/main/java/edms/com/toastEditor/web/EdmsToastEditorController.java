@@ -3,6 +3,8 @@ package edms.com.toastEditor.web;
 import edms.com.toastEditor.service.EdmsToastEditorBoardVO;
 import edms.com.toastEditor.service.EdmsToastEditorImageVO;
 import edms.com.toastEditor.service.EdmsToastEditorService;
+import edms.common.util.HtmlSanitizerPolicy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 public class EdmsToastEditorController {
 
@@ -40,7 +43,7 @@ public class EdmsToastEditorController {
          * 1. 이미지가 있으면 DB BLOB에 저장
          * 2. 본문 안의 blob URL을 실제 이미지 조회 URL로 치환
          */
-        if (images != null && blobUrls != null) {
+   /*     if (images != null && blobUrls != null) {
             for (int i = 0; i < images.size(); i++) {
                 MultipartFile image = images.get(i);
 
@@ -57,15 +60,16 @@ public class EdmsToastEditorController {
                 }
             }
         }
-
+*/
         /*
          * 3. 최종 게시글 저장
          */
         EdmsToastEditorBoardVO boardVO = new EdmsToastEditorBoardVO();
         boardVO.setTitle(title);
-        boardVO.setContent(content);
-
-        edmsToastEditorService.insertBoard(boardVO);
+        log.debug("Sanitized content before: {}", boardVO.getContent());
+        boardVO.setContent(HtmlSanitizerPolicy.sanitize(content));
+        log.debug("Sanitized content after: {}", boardVO.getContent());
+        //edmsToastEditorService.insertBoard(boardVO);
 
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("success", true);

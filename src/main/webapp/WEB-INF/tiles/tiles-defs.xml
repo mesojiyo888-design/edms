@@ -4,13 +4,12 @@
         "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 <tiles-definitions>
 
-    <!-- 공통 기본 레이아웃 정의 -->
+    <!-- 공통 기본 레이아웃: 헤더(GNB 포함) + LNB + 탭바/탭영역, 본창 탐색 시 매번 다시 그려짐 -->
     <definition name="default-layout" template="/WEB-INF/jsp/layout/defaultLayout.jsp">
+        <put-attribute name="lnb" value="/WEB-INF/jsp/layout/lnb.jsp" type="template" />
         <put-attribute name="header" value="/WEB-INF/jsp/layout/header.jsp" type="template" />
-        <put-attribute name="footer" value="/WEB-INF/jsp/layout/footer.jsp" type="template" />
     </definition>
 
-    <!-- 기본 레이아웃 -->
     <definition name="*/*" extends="default-layout">
         <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" type="template" />
     </definition>
@@ -22,6 +21,21 @@
     </definition>
     <definition name="*/*/*/*/*" extends="default-layout">
         <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" type="template" />
+    </definition>
+
+    <!-- 탭(iframe) 전용: 헤더/LNB 없이 body만, LoginUserInterceptor가 "content/" 접두어 붙여줌 -->
+    <definition name="content-layout" template="/WEB-INF/jsp/layout/contentLayout.jsp">
+        <put-attribute name="body" value="" type="template" />
+    </definition>
+
+    <definition name="content/*/*" extends="content-layout">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" type="template" />
+    </definition>
+    <definition name="content/*/*/*" extends="content-layout">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" type="template" />
+    </definition>
+    <definition name="content/*/*/*/*" extends="content-layout">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" type="template" />
     </definition>
 
 </tiles-definitions>

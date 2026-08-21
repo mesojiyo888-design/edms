@@ -22,6 +22,13 @@
 //      → 실패하면 콜백으로 받은 rollback() 을 호출해서 트리를 원상복구
 //
 // 서버통신(ajax)은 이 파일에 없음. 전부 화면 콜백에서 작성한다.
+//
+// ※ customId(서버 PK) 매핑 관련 주의사항
+//   tui-tree는 register 시 넘긴 노드 데이터의 id 필드를 내부 관리용으로
+//   흡수해버려서, getNodeData()로 다시 꺼내면 id 필드 자체가 사라진다.
+//   대신 convertFlatToTree()가 원본 row를 raw 필드에 그대로 보존해두므로,
+//   customId는 data.id가 아니라 data.raw[fieldMap.id]에서 읽어야 한다.
+//   (flatData가 아니라 nestedData를 직접 넘긴 경우엔 raw가 없으므로 data.id로 폴백)
 // ===================================================================
 var ComTree = (function()
 {
@@ -190,6 +197,33 @@ var ComTree = (function()
     }
 
     /**
+     * 노드 데이터에서 customId(서버 PK) 원본 값을 뽑아내는 내부 헬퍼
+     *
+     * tui-tree가 넘겨받은 data.id를 내부 관리용 필드로 흡수해버려서
+     * getNodeData()로 꺼내보면 id 필드가 사라져있다. 대신 convertFlatToTree()가
+     * 원본 row를 raw에 그대로 보존해두므로, flatData로 등록한 트리는
+     * data.raw[fieldMap.id]로 찾아야 한다. (nestedData를 직접 넘긴 경우는
+     * raw가 없을 수 있으므로 data.id도 폴백으로 체크)
+     */
+    function _extractCustomId(treeId, data)
+    {
+        if(!data)
+        {
+            return undefined;
+        }
+
+        var opts    = _optionsMap[treeId] || {};
+        var idField = (opts.fieldMap && opts.fieldMap.id) || 'menuId';
+
+        if(data.raw && data.raw[idField] !== undefined)
+        {
+            return data.raw[idField];
+        }
+
+        return data.id;
+    }
+
+    /**
      * 트리 전체 노드를 순회해 customId ↔ nodeId 매핑을 (재)구축
      * search({}) 로는 전체 노드를 가져오기 애매하므로, 재귀적으로 getChildIds를 순회한다.
      */
@@ -213,10 +247,11 @@ var ComTree = (function()
             childIds.forEach(function(childId)
             {
                 var data = tree.getNodeData(childId);
+                var customId = _extractCustomId(treeId, data);
 
-                if(data && data.id)
+                if(customId !== undefined)
                 {
-                    _idMap[treeId][data.id] = childId;
+                    _idMap[treeId][customId] = childId;
                 }
 
                 walk(childId);
@@ -630,9 +665,11 @@ var ComTree = (function()
             tree.refresh();
         }
 
-        if(nodeData.id)
+        var customId = _extractCustomId(treeId, nodeData);
+
+        if(customId !== undefined)
         {
-            _idMap[treeId][nodeData.id] = newNodeId;
+            _idMap[treeId][customId] = newNodeId;
         }
 
         var rollback = function()
@@ -644,9 +681,9 @@ var ComTree = (function()
                 tree.refresh();
             }
 
-            if(nodeData.id)
+            if(customId !== undefined)
             {
-                delete _idMap[treeId][nodeData.id];
+                delete _idMap[treeId][customId];
             }
         };
 
@@ -693,6 +730,7 @@ var ComTree = (function()
 
         // 롤백용으로 수정 전 데이터를 얕은 복사해 둔다
         var backup = $.extend({}, oldData);
+        var oldCustomId = _extractCustomId(treeId, oldData);
 
         tree.setNodeData(nodeId, newData);
 
@@ -702,6 +740,21 @@ var ComTree = (function()
         }
 
         var merged = tree.getNodeData(nodeId);
+        var newCustomId = _extractCustomId(treeId, merged);
+
+        // idMap 동기화 : customId가 새로 생기거나 변경된 경우 반영
+        if(newCustomId !== oldCustomId)
+        {
+            if(oldCustomId !== undefined)
+            {
+                delete _idMap[treeId][oldCustomId];
+            }
+
+            if(newCustomId !== undefined)
+            {
+                _idMap[treeId][newCustomId] = nodeId;
+            }
+        }
 
         var rollback = function()
         {
@@ -710,6 +763,20 @@ var ComTree = (function()
             if(typeof tree.refresh === 'function')
             {
                 tree.refresh();
+            }
+
+            // idMap 롤백
+            if(newCustomId !== oldCustomId)
+            {
+                if(newCustomId !== undefined)
+                {
+                    delete _idMap[treeId][newCustomId];
+                }
+
+                if(oldCustomId !== undefined)
+                {
+                    _idMap[treeId][oldCustomId] = nodeId;
+                }
             }
         };
 
@@ -748,6 +815,7 @@ var ComTree = (function()
         var parentId  = tree.getParentId(nodeId);
         var nodeIndex = tree.getNodeIndex(nodeId);
         var backup    = $.extend({}, nodeData);
+        var customId  = _extractCustomId(treeId, nodeData);
 
         tree.remove(nodeId);
 
@@ -756,9 +824,9 @@ var ComTree = (function()
             tree.refresh();
         }
 
-        if(nodeData.id)
+        if(customId !== undefined)
         {
-            delete _idMap[treeId][nodeData.id];
+            delete _idMap[treeId][customId];
         }
 
         var rollback = function()
@@ -770,9 +838,9 @@ var ComTree = (function()
                 tree.refresh();
             }
 
-            if(backup.id)
+            if(customId !== undefined)
             {
-                _idMap[treeId][backup.id] = restoredNodeId;
+                _idMap[treeId][customId] = restoredNodeId;
             }
         };
 
@@ -969,6 +1037,51 @@ var ComTree = (function()
         }
 
         return _idMap[treeId][customId];
+    }
+
+    /**
+     * 트리의 첫 번째 노드를 자동 선택
+     * - rootLabel로 감싼 경우, 그 최상위 래퍼 노드는 건너뛰고 실제 첫 항목을 선택
+     * - select()를 호출하면 register 시 등록한 onSelect 콜백도 자동으로 실행됨
+     *
+     * 사용법 : ComTree.selectFirstNode('docFolderTree')
+     */
+    function selectFirstNode(treeId)
+    {
+        var tree = getTree(treeId);
+
+        if(!tree)
+        {
+            return null;
+        }
+
+        var rootId    = tree.getRootNodeId();
+        var childIds  = tree.getChildIds(rootId) || [];
+
+        if(childIds.length === 0)
+        {
+            return null;
+        }
+
+        var targetNodeId = childIds[0];
+        var opts = _optionsMap[treeId] || {};
+
+        // rootLabel로 감싼 구조라면, 그 래퍼 자체가 아니라 그 하위 첫 노드를 선택
+        if(opts.rootLabel)
+        {
+            var wrapperChildIds = tree.getChildIds(targetNodeId) || [];
+
+            if(wrapperChildIds.length === 0)
+            {
+                return null;
+            }
+
+            targetNodeId = wrapperChildIds[0];
+        }
+
+        tree.select(targetNodeId);
+
+        return targetNodeId;
     }
 
     /**
@@ -1202,6 +1315,7 @@ var ComTree = (function()
         moveNode           : moveNode,
         isLeaf             : isLeaf,
         getNodeIdByCustomId: getNodeIdByCustomId,
+        selectFirstNode    : selectFirstNode,
         getSelectedNodeId  : getSelectedNodeId,
         refresh            : refresh,
         reload             : reload,

@@ -7,6 +7,14 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
 
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor.min.css" />
+    <script src="${pageContext.request.contextPath}/js/lib/toast/toast-editor/toastui-editor-all.min.js"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-editor/theme/toastui-editor-dark.min.css" />
+
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-context-menu.min-2.1.9.css" />
+    <script src="${pageContext.request.contextPath}/js/lib/toast/toast-tree/tui-context-menu.min-2.1.9.js" ></script>
+    <script src="${pageContext.request.contextPath}/js/common/toastEditor.js"></script>
+
     <script>
         // 초기값 텍스트 세팅
         var sampleContent = `

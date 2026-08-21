@@ -98,7 +98,8 @@ public class SsoIntegratedConfig {
                         new AntPathRequestMatcher("/dummy-login-process"),
                         new AntPathRequestMatcher("/api/**"),
                         new AntPathRequestMatcher("/sso/callback"),
-                        new AntPathRequestMatcher("/raonkHandler.do")
+                        new AntPathRequestMatcher("/raonkHandler.do"),
+                        new AntPathRequestMatcher("/test/toastEditorInsertImages")
 
                 )
                 .and()

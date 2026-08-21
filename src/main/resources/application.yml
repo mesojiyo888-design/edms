@@ -114,3 +114,7 @@ kutt:
   api:
     key: gwzfsuPfZF1Xcf9saUlPPOyNhLmvnbiTuVkvOe0r          # Kutt API Key로 변경
     timeout: 5000
+
+
+xss:
+  exclude-params: bnCn
